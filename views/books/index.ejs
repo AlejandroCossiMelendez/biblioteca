@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Libros - Sistema de Gestión de Libros</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --success-color: #4cc9f0;
+            --danger-color: #f72585;
+            --background-color: #f8f9fa;
+            --text-color: #2b2d42;
+            --light-text: #8d99ae;
+        }
+
+        body {
+            background-color: var(--background-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            display: flex;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+            padding: 0;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            position: fixed;
+            height: 100vh;
+            padding: 1rem;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+            padding: 1rem 0.5rem;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .sidebar.collapsed .sidebar-header {
+            padding: 1rem 0.5rem;
+        }
+
+        .sidebar-brand {
+            color: white;
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-brand i {
+            font-size: 1.5rem;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .sidebar-brand span {
+            transition: all 0.3s ease;
+            opacity: 1;
+            width: auto;
+        }
+
+        .sidebar.collapsed .sidebar-brand span {
+            opacity: 0;
+            width: 0;
+            margin: 0;
+        }
+
+        .toggle-sidebar {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0.5rem;
+            font-size: 1rem;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: absolute;
+            right: -16px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1001;
+        }
+
+        .toggle-sidebar:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .sidebar.collapsed .toggle-sidebar {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-link {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .sidebar.collapsed .sidebar-link {
+            padding: 0.75rem;
+            justify-content: center;
+        }
+
+        .sidebar-link i {
+            width: 24px;
+            text-align: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-link span {
+            transition: all 0.3s ease;
+            opacity: 1;
+            width: auto;
+        }
+
+        .sidebar.collapsed .sidebar-link span {
+            opacity: 0;
+            width: 0;
+            margin: 0;
+        }
+
+        .sidebar-link:hover, .sidebar-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            width: calc(100% - 250px);
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0;
+        }
+
+        .main-content.expanded {
+            margin-left: 80px;
+            width: calc(100% - 80px);
+        }
+
+        .content-wrapper {
+            flex: 1;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .navbar {
+            display: none;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 2rem;
+            margin: -2rem -2rem 2rem -2rem;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            width: calc(100% + 6rem);
+            left: -2rem;
+            box-sizing: border-box;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            z-index: 0;
+        }
+
+        .page-header .container {
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-header .btn {
+            position: relative;
+            z-index: 3;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(67, 97, 238, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: white;
+            margin-bottom: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .btn-success:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        .btn-danger:hover {
+            background-color: #d90429;
+            border-color: #d90429;
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem;
+            margin: 2rem -2rem -2rem -2rem;
+            position: relative;
+            overflow: hidden;
+            width: calc(100% + 4rem);
+            left: -2rem;
+            box-sizing: border-box;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        /* DataTables Custom Styles */
+        .dataTables_wrapper {
+            width: 100%;
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .dataTables_length, .dataTables_filter {
+            margin-bottom: 1rem;
+        }
+
+        .dataTables_length select {
+            padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .dataTables_length select:hover {
+            border-color: var(--primary-color);
+        }
+
+        .dataTables_filter input {
+            padding: 0.375rem 0.75rem;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .dataTables_filter input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+            outline: none;
+        }
+
+        .dataTables_info {
+            padding-top: 1rem;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .dataTables_paginate {
+            padding-top: 1rem;
+        }
+
+        .dataTables_paginate .paginate_button {
+            border-radius: 8px;
+            margin: 0 2px;
+            padding: 0.5rem 1rem;
+            border: 1px solid #dee2e6 !important;
+            background: white !important;
+            color: var(--text-color) !important;
+            transition: all 0.3s ease;
+        }
+
+        .dataTables_paginate .paginate_button:hover {
+            background: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
+            color: white !important;
+        }
+
+        .dataTables_paginate .paginate_button.current {
+            background: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
+            color: white !important;
+        }
+
+        .dataTables_paginate .paginate_button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Tooltip Styles */
+        [data-bs-toggle="tooltip"] {
+            cursor: pointer;
+        }
+
+        .tooltip {
+            font-size: 0.875rem;
+        }
+
+        .tooltip-inner {
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .tooltip.bs-tooltip-top .tooltip-arrow::before {
+            border-top-color: var(--primary-color);
+        }
+
+        .tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+            border-bottom-color: var(--primary-color);
+        }
+
+        /* Table Styles */
+        .table-responsive {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: auto;
+            box-sizing: border-box;
+        }
+
+        .table {
+            width: 100%;
+            margin-bottom: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+            table-layout: fixed;
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            padding: 1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #eee;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .btn-group .btn {
+            padding: 0.5rem;
+            margin: 0 2px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-group .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .alert-success {
+            background-color: rgba(76, 201, 240, 0.1);
+            color: var(--success-color);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .alert-danger {
+            background-color: rgba(247, 37, 133, 0.1);
+            color: var(--danger-color);
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .container-fluid {
+            width: 100%;
+            padding-right: 2rem;
+            padding-left: 2rem;
+            margin: 0;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                padding: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .sidebar.collapsed {
+                width: 0;
+            }
+
+            .toggle-sidebar {
+                display: none;
+            }
+            
+            .page-header {
+                margin: -1rem -1rem 1rem -1rem;
+                padding: 1.5rem;
+                width: calc(100% + 2rem);
+                left: -1rem;
+            }
+            
+            .footer {
+                margin: 1rem -1rem -1rem -1rem;
+                padding: 1.5rem;
+                width: calc(100% + 2rem);
+                left: -1rem;
+            }
+            
+            .container-fluid {
+                padding-right: 1rem;
+                padding-left: 1rem;
+            }
+
+            .dataTables_length, .dataTables_filter {
+                text-align: left;
+                margin-bottom: 0.5rem;
+            }
+
+            .dataTables_filter {
+                margin-top: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="sidebar-brand">
+                <i class="fas fa-book"></i>
+                <span>Gestión de Libros</span>
+            </a>
+            <button class="toggle-sidebar" title="Colapsar/Expandir menú">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="/books" class="sidebar-link active">
+                    <i class="fas fa-book"></i>
+                    <span>Libros</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/editorial" class="sidebar-link">
+                    <i class="fas fa-building"></i>
+                    <span>Editorial</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/prestamos" class="sidebar-link">
+                    <i class="fas fa-hand-holding"></i>
+                    <span>Préstamos</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-wrapper">
+            <!-- Page Header -->
+            <header class="page-header">
+                <div class="container-fluid">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="mb-0">
+                            <i class="fas fa-book me-2"></i>Lista de Libros
+                        </h1>
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addBookModal">
+                            <i class="fas fa-plus me-2"></i>Agregar Libro
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="container-fluid">
+                <div class="card">
+                    <div class="card-body">
+                        <% if (messages.success) { %>
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle me-2"></i><%= messages.success %>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        <% } %>
+
+                        <% if (messages.error) { %>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i><%= messages.error %>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        <% } %>
+
+                        <div class="table-responsive">
+                            <table id="booksTable" class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Autor</th>
+                                        <th>Fecha de Creación</th>
+                                        <th>Última Actualización</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% books.forEach(book => { %>
+                                        <tr>
+                                            <td><%= book.id %></td>
+                                            <td><%= book.name %></td>
+                                            <td><%= book.author %></td>
+                                            <td><%= new Date(book.created_at).toLocaleString('es-ES') %></td>
+                                            <td><%= new Date(book.updated_at).toLocaleString('es-ES') %></td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button type="button" class="btn btn-primary btn-sm edit-btn" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#editBookModal"
+                                                            data-id="<%= book.id %>"
+                                                            data-name="<%= book.name %>"
+                                                            data-author="<%= book.author %>">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <a href="/books/delete/<%= book.id %>" class="btn btn-danger btn-sm delete-btn" title="Eliminar">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container-fluid text-center">
+                <p class="mb-0">&copy; 2024 Sistema de Gestión de Libros. Todos los derechos reservados.</p>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Add Book Modal -->
+    <div class="modal fade" id="addBookModal" tabindex="-1" aria-labelledby="addBookModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addBookModalLabel">
+                        <i class="fas fa-plus me-2"></i>Agregar Nuevo Libro
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="addBookForm" action="/books/add" method="POST">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Nombre del Libro</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="author" class="form-label">Autor</label>
+                            <input type="text" class="form-control" id="author" name="author" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Guardar Libro
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Book Modal -->
+    <div class="modal fade" id="editBookModal" tabindex="-1" aria-labelledby="editBookModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editBookModalLabel">
+                        <i class="fas fa-edit me-2"></i>Editar Libro
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editBookForm" action="/books/update/" method="POST">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="editName" class="form-label">Nombre del Libro</label>
+                            <input type="text" class="form-control" id="editName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAuthor" class="form-label">Autor</label>
+                            <input type="text" class="form-control" id="editAuthor" name="author" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.all.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Inicializar tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl, {
+                    trigger: 'hover',
+                    placement: 'top',
+                    animation: true
+                });
+            });
+
+            // Inicializar modales
+            var editModal = new bootstrap.Modal(document.getElementById('editBookModal'), {
+                backdrop: 'static',
+                keyboard: false
+            });
+
+            // Limpiar el modal cuando se cierra
+            $('#editBookModal').on('hidden.bs.modal', function () {
+                $('#editBookForm')[0].reset();
+                $('#editBookForm').attr('action', '/books/update/');
+                // Remover cualquier clase de error que pudiera haberse agregado
+                $('.is-invalid').removeClass('is-invalid');
+                $('.invalid-feedback').remove();
+            });
+
+            // Toggle sidebar
+            $('.toggle-sidebar').on('click', function() {
+                $('.sidebar').toggleClass('collapsed');
+                $('.main-content').toggleClass('expanded');
+                // Ajustar la tabla después de la transición
+                setTimeout(function() {
+                    table.columns.adjust().responsive.recalc();
+                }, 300);
+            });
+
+            // Inicializar DataTable
+            var table = $('#booksTable').DataTable({
+                responsive: true,
+                autoWidth: false,
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
+                    search: "Buscar:",
+                    lengthMenu: "Mostrar _MENU_ registros por página",
+                    zeroRecords: "No se encontraron resultados",
+                    info: "Mostrando página _PAGE_ de _PAGES_",
+                    infoEmpty: "No hay registros disponibles",
+                    infoFiltered: "(filtrado de _MAX_ registros totales)",
+                    paginate: {
+                        first: "Primero",
+                        last: "Último",
+                        next: "Siguiente",
+                        previous: "Anterior"
+                    }
+                },
+                order: [[0, 'desc']],
+                pageLength: 10,
+                lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]],
+                columnDefs: [
+                    { orderable: false, targets: 5 }
+                ],
+                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                     '<"row"<"col-sm-12"tr>>' +
+                     '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                drawCallback: function() {
+                    // Reinicializar tooltips después de cada redibujado
+                    tooltipList.forEach(tooltip => tooltip.dispose());
+                    tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl, {
+                            trigger: 'hover',
+                            placement: 'top',
+                            animation: true
+                        });
+                    });
+                }
+            });
+
+            // Ajustar el ancho de la tabla cuando cambia el tamaño de la ventana
+            $(window).on('resize', function() {
+                table.columns.adjust().responsive.recalc();
+            });
+
+            // Ajustar la tabla después de que se cargue completamente
+            $(window).on('load', function() {
+                table.columns.adjust().responsive.recalc();
+            });
+
+            // Agregar tooltips a los botones de acción
+            $('.edit-btn').attr('data-bs-toggle', 'tooltip').attr('title', 'Editar libro');
+            $('.delete-btn').attr('data-bs-toggle', 'tooltip').attr('title', 'Eliminar libro');
+            $('.toggle-sidebar').attr('data-bs-toggle', 'tooltip').attr('title', 'Colapsar/Expandir menú');
+
+            // Manejar clic en botón de editar
+            $(document).on('click', '.edit-btn', function() {
+                const id = $(this).data('id');
+                const name = $(this).data('name');
+                const author = $(this).data('author');
+
+                $('#editBookForm').attr('action', `/books/update/${id}`);
+                $('#editName').val(name);
+                $('#editAuthor').val(author);
+
+                editModal.show();
+            });
+
+            // Manejar clic en botón de eliminar
+            $(document).on('click', '.delete-btn', function(e) {
+                e.preventDefault();
+                const deleteUrl = $(this).attr('href');
+                
+                Swal.fire({
+                    title: '¿Eliminar libro?',
+                    text: "Esta acción no se puede deshacer",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#f72585',
+                    cancelButtonColor: '#8d99ae',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = deleteUrl;
+                    }
+                });
+            });
+
+            // Manejar envío del formulario de agregar
+            $('#addBookForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                Swal.fire({
+                    title: '¿Agregar libro?',
+                    text: "¿Estás seguro de que deseas agregar este libro?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#4361ee',
+                    cancelButtonColor: '#8d99ae',
+                    confirmButtonText: 'Sí, agregar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.submit();
+                    }
+                });
+            });
+
+            // Manejar envío del formulario de editar
+            $('#editBookForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                Swal.fire({
+                    title: '¿Guardar cambios?',
+                    text: "¿Estás seguro de que deseas guardar los cambios?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#4361ee',
+                    cancelButtonColor: '#8d99ae',
+                    confirmButtonText: 'Sí, guardar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.submit();
+                    }
+                });
+            });
+
+            // Mostrar mensajes de éxito/error con SweetAlert2
+            const successMessage = '<%= messages.success %>';
+            const errorMessage = '<%= messages.error %>';
+
+            if (successMessage && successMessage !== '') {
+                Swal.fire({
+                    title: '¡Éxito!',
+                    text: successMessage,
+                    icon: 'success',
+                    confirmButtonColor: '#4361ee'
+                });
+            }
+
+            if (errorMessage && errorMessage !== '') {
+                Swal.fire({
+                    title: 'Error',
+                    text: errorMessage,
+                    icon: 'error',
+                    confirmButtonColor: '#f72585'
+                });
+            }
+        });
+    </script>
+</body>
+</html>
