@@ -1,0 +1,115 @@
+<%- include('../partials/sidebar', {currentPage: 'editorials'}) %>
+	<!-- Encabezado mejorado -->
+	<header class="page-header bg-light py-4 mb-4 border-bottom">
+		<div class="container-fluid">
+			<div class="d-flex justify-content-between align-items-center">
+				<div class="d-flex align-items-center">
+					<i class="fas fa-user-edit fs-3 text-primary me-3"></i>
+					<div>
+						<i class="fa fa-list-alt fa-2x"></i></i> Editoriales
+					</div>
+				</div>
+				<div>
+			</div>
+		</div>
+	</header>
+
+                <% if (messages.success) { %>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i><%- messages.success %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <% } %>
+                <% if (messages.error) { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i><%- messages.error %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <% } %>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-building me-2"></i>Lista de Editoriales</h5>
+                            <a href="/editorials/add" class="btn btn-action btn-light btn-lg">
+                                <i class="fas fa-plus"></i>Nueva Editorial
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <% if(data.length) { %>
+                        <div class="table-responsive">
+                            <table id="editorialsTable" class="table table-hover">
+                                <thead>                                    
+                                    <tr>                                        
+                                        <th>#</th>                                        
+                                        <th>Nombre</th>
+                                        <th>Descripción</th>                                        
+                                        <th>Estado</th>                                        
+                                        <th class="text-center">Acciones</th>                                    
+                                    </tr>                                
+                                </thead>
+                                <tbody>
+                                <% for(var i = 0; i< data.length; i++) { %>
+                                    <tr>
+                                        <th scope="row"><%= (i+1) %></th>
+                                        <td><%= data[i].name%></td>
+                                        <td><%= data[i].description || 'Sin descripción' %></td>
+                                        <td>
+                                            <span class="badge <%= data[i].state === 1 ? 'bg-success' : 'bg-danger' %>">
+                                                <%= data[i].state === 1 ? 'Activo' : 'Inactivo' %>
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="action-buttons">
+                                                <a href="/editorials/edit/<%= data[i].id_editorial %>" class="btn btn-action btn-success btn-sm">
+                                                    <i class="fas fa-pen-to-square"></i>Editar
+                                                </a>
+                                                <a href="/editorials/delete/<%= data[i].id_editorial %>" 
+                                                   class="btn btn-action btn-danger btn-sm ms-1"
+                                                   onclick="return confirm('¿Está seguro de que desea eliminar esta editorial?')">
+                                                    <i class="fas fa-trash-can"></i>Eliminar
+                                                </a>
+                                            </div>                       
+                                        </td>
+                                    </tr>
+                                <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                        <% } else { %>
+                            <div class="text-center py-5">
+                                <i class="fas fa-list-alt fa-3x text-muted mb-3"></i>
+                                <p class="lead text-muted">No se encontraron editoriales</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+<%- include('../partials/footer') %>
+    <!-- Initialize DataTable -->
+    <script>
+        $(document).ready(function() {
+            $('#editorialsTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
+                    search: "Buscar:",
+                    lengthMenu: "Mostrar _MENU_ registros por página",
+                    zeroRecords: "No se encontraron registros",
+                    info: "Mostrando página _PAGE_ de _PAGES_",
+                    infoEmpty: "No hay registros disponibles",
+                    infoFiltered: "(filtrado de _MAX_ registros totales)",
+                    paginate: {
+                        first: "Primero",
+                        last: "Último",
+                        next: "Siguiente",
+                        previous: "Anterior"
+                    }
+                },
+                pageLength: 5,
+                lengthMenu: [[5, 10, 25, -1], [5, 10, 25, "Todos"]],
+                order: [[1, 'asc']],
+                responsive: true
+            });
+        });
+    </script>

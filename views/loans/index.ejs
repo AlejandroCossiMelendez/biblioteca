@@ -1,0 +1,371 @@
+<%- include('../partials/sidebar', {currentPage: 'loans'}) %>
+
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="mb-0">
+                    <i class="fas fa-archive me-2"></i>Lista de Prestamos
+                </h1>
+            </div>
+        </div>
+    </header>
+    <% if (messages.success) { %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i><%- messages.success %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <% } %>
+    <% if (messages.error) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i><%- messages.error %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <% } %>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Lista de Préstamos</h5>
+                
+                <% if (user.role === 'librarian' || user.role === 'admin') { %>
+                    <a href="/loans/create" class="btn btn-action btn-light btn-lg">
+                        <i class="fas fa-plus"></i>Nuevo Préstamo
+                    </a>
+                <% } %>
+            </div>
+        </div>
+        
+        <!-- Nuevo: Filtros y botón de PDF -->
+        <div class="card-body border-bottom">
+            <form id="filterForm" class="row g-3">
+                <div class="col-md-3">
+                    <label for="startDate" class="form-label">Fecha desde</label>
+                    <input type="date" class="form-control" id="startDate" name="startDate">
+                </div>
+                <div class="col-md-3">
+                    <label for="endDate" class="form-label">Fecha hasta</label>
+                    <input type="date" class="form-control" id="endDate" name="endDate">
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Estado</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">Todos</option>
+                        <option value="active">Prestado</option>
+                        <option value="overdue">Vencido</option>
+                        <option value="returned">Devuelto</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label for="book" class="form-label">Libro</label>
+                    <select class="form-select select2" id="book" name="book">
+                        <option value="">Todos los libros</option>
+                        <% loans.forEach(loan => { %>
+                            <option value="<%= loan.book_id %>"><%= loan.book_title %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-filter me-2"></i>Filtrar
+                    </button>
+                    <button type="button" id="generatePdf" class="btn btn-danger">
+                        <i class="fas fa-file-pdf me-2"></i>Generar PDF
+                    </button>
+                    <button type="button" id="generateExcel" class="btn btn-success">
+                        <i class="fas fa-file-excel me-2"></i>Generar Excel
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card-body">
+            <% if(loans && loans.length > 0) { %>
+            <div class="table-responsive">
+                <table id="loansTable" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Libro</th>
+                            <th>Usuario</th>
+                            <th>Fecha Préstamo</th>
+                            <th>Fecha Devolución</th>
+                            <th>Estado</th>
+                            
+                            
+                            <% if (user.role === 'librarian' || user.role === 'admin') { %>
+                                <th class="text-center">Acciones</th>
+                            
+                            <% } %>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% loans.forEach(loan => { %>
+                            <tr>
+                                <th scope="row"><%= (loans.indexOf(loan) + 1) %></th>
+                                <td><%= loan.book_title %></td>
+                                <td><%= loan.user_name %></td>
+                                <td><%= new Date(loan.loan_date).toLocaleDateString() %></td>
+                                <td><%= loan.due_date ? new Date(loan.due_date).toLocaleDateString() : '-' %></td>
+                                <td>
+                                    <% if (loan.display_status === 'returned') { %>
+                                        <span class="badge bg-success">Devuelto</span>
+                                    <% } else if (loan.display_status === 'overdue') { %>
+                                        <span class="badge bg-danger">Vencido</span>
+                                    <% } else { %>
+                                        <span class="badge bg-warning">Prestado</span>
+                                    <% } %>
+                                </td>
+                                
+                                <% if (user.role === 'librarian' || user.role === 'admin') { %>
+                                    <td class="text-center">
+                                        <div class="action-buttons">
+                                        <% if (loan.status !== 'returned') { %>
+                                            <% if (user.role === 'librarian' || user.role === 'admin') { %>
+                                                <form action="/loans/return/<%= loan.id %>" method="POST" class="d-inline">
+                                                    <button type="submit" class="btn btn-action btn-success btn-sm" onclick="return confirm('¿Estás seguro de devolver este libro?')">
+                                                        <i class="fas fa-undo-alt"></i>Devolver
+                                                    </button>
+                                                </form>
+                                            <% } %>
+                                        <% } else if (loan.status === 'returned' && (user.role === 'librarian' || user.role === 'admin' )) { %>
+                                            <form action="/loans/delete/<%= loan.id %>" method="POST" class="d-inline">
+                                                <button type="submit" class="btn btn-action btn-danger btn-sm" 
+                                                        onclick="return confirm('¿Estás seguro de eliminar este registro de préstamo? Esta acción no se puede deshacer.')">
+                                                    <i class="fas fa-trash-can"></i>Eliminar
+                                                </button>
+                                            </form>
+                                        <% } %>
+                                        </div>
+                                    </td>
+                                
+                                <% } %>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+            <% } else { %>
+                <div class="text-center py-5">
+                    <i class="fas fa-exchange-alt fa-3x text-muted mb-3"></i>
+                    <p class="lead text-muted">No hay préstamos registrados</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+    <%- include('../partials/footer') %>
+    <script>
+    $(document).ready(function() {
+        // Inicializar DataTable con server-side processing
+        const table = $('#loansTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
+                search: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros por página",
+                zeroRecords: "No se encontraron registros",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                infoEmpty: "Mostrando 0 a 0 de 0 registros",
+                infoFiltered: "(filtrado de _MAX_ registros totales)",
+                paginate: {
+                    first: "Primero",
+                    last: "Último",
+                    next: "Siguiente",
+                    previous: "Anterior"
+                }
+            },
+            pageLength: 5,
+            lengthMenu: [[5, 10, 25, -1], [5, 10, 25, "Todos"]],
+            order: [[3, 'desc']],
+            responsive: true,
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '/loans/data',
+                type: 'POST',
+                data: function(d) {
+                    // Agregar filtros a la solicitud AJAX
+                    return {
+                        ...d,
+                        startDate: $('#startDate').val(),
+                        endDate: $('#endDate').val(),
+                        status: $('#status').val(),
+                        book: $('#book').val()
+                    };
+                }
+            },
+            columns: [
+                { data: 0, title: '#' },
+                { data: 1, title: 'Libro' },
+                { data: 2, title: 'Usuario' },
+                { data: 3, title: 'Fecha Préstamo' },
+                { data: 4, title: 'Fecha Devolución' },
+                { 
+                    data: 5, 
+                    title: 'Estado',
+                    render: function(data, type, row) {
+                        if (type === 'display') {
+                            return data;
+                        }
+                        return data.includes('Devuelto') ? 'returned' : 
+                               data.includes('Vencido') ? 'overdue' : 'active';
+                    }
+                },
+                <% if (user.role === 'librarian' || user.role === 'admin') { %>
+                { 
+                    data: 6, 
+                    title: 'Acciones',
+                    orderable: false,
+                    searchable: false,
+                    className: 'text-center'
+                }
+                <% } %>
+            ],
+            createdRow: function(row, data, dataIndex) {
+                // Añadir clases según el estado
+                const status = data[5].includes('Devuelto') ? 'returned' : 
+                              data[5].includes('Vencido') ? 'overdue' : 'active';
+                $(row).addClass('loan-' + status);
+            }
+        });
+
+        // Manejar el envío del formulario de filtros
+        $('#filterForm').on('submit', function(e) {
+            e.preventDefault();
+            table.ajax.reload();
+        });
+
+        // Botón para generar PDF
+        $('#generatePdf').on('click', function() {
+            const filters = {
+                startDate: $('#startDate').val(),
+                endDate: $('#endDate').val(),
+                status: $('#status').val(),
+                book: $('#book').val()
+            };
+
+            // Validar fechas
+            if (filters.startDate && filters.endDate && filters.startDate > filters.endDate) {
+                alert('La fecha "Desde" no puede ser mayor que la fecha "Hasta"');
+                return;
+            }
+
+            // Construir URL con parámetros
+            const params = new URLSearchParams();
+            for (const key in filters) {
+                if (filters[key]) params.append(key, filters[key]);
+            }
+
+            // Mostrar spinner de carga
+            const pdfBtn = $(this);
+            pdfBtn.prop('disabled', true);
+            pdfBtn.html('<i class="fas fa-spinner fa-spin me-2"></i>Generando...');
+
+            // Abrir en nueva pestaña
+            const pdfWindow = window.open(`/loans/report/pdf?${params.toString()}`, '_blank');
+
+            // Verificar si la ventana se bloqueó
+            if (!pdfWindow || pdfWindow.closed || typeof pdfWindow.closed === 'undefined') {
+                alert('El navegador bloqueó la ventana emergente. Por favor, permite ventanas emergentes para este sitio.');
+            }
+
+            // Restaurar botón después de 3 segundos (incluso si falla)
+            setTimeout(() => {
+                pdfBtn.prop('disabled', false);
+                pdfBtn.html('<i class="fas fa-file-pdf me-2"></i>Generar PDF');
+            }, 3000);
+        });
+        $('#generateExcel').on('click', function () {
+
+            // 1️⃣  Filtros “manuales” del formulario
+            const manual = {
+                startDate: $('#startDate').val(),
+                endDate:   $('#endDate').val(),
+                status:    $('#status').val(),
+                book:      $('#book').val()
+            };
+
+            // Validación básica de fechas
+            if (manual.startDate && manual.endDate && manual.startDate > manual.endDate) {
+                return alert('La fecha "Desde" no puede ser mayor que la fecha "Hasta"');
+            }
+
+            // 2️⃣  Últimos parámetros que DataTables envió al servidor
+            const dt = table.ajax.params();  // requiere DataTables ≥1.10.20 (server-side true)
+
+            // 3️⃣  Empaquetamos todo en URLSearchParams
+            const params = new URLSearchParams({
+                ...manual,
+                search:   dt.search?.value || '',            // buscador global
+                orderCol: dt.order?.[0]?.column ?? 3,        // columna ordenada
+                orderDir: dt.order?.[0]?.dir    ?? 'desc',   // dirección asc/desc
+                draw:     dt.draw                            // opcional: para evitar caché
+            });
+
+            // 4️⃣  Spinner y lanzamiento
+            const btn = $(this).prop('disabled', true)
+                                .html('<i class="fas fa-spinner fa-spin me-2"></i>Generando…');
+
+            window.open(`/loans/report/excel?${params.toString()}`, '_blank');
+
+            setTimeout(() => {
+                btn.prop('disabled', false)
+                .html('<i class="fas fa-file-excel me-2"></i>Generar Excel');
+            }, 3000);
+        });
+
+        // Mobile Navigation
+        const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarOverlay = document.querySelector('.sidebar-overlay');
+        
+        function toggleSidebar() {
+            sidebar.classList.toggle('show');
+            sidebarOverlay.classList.toggle('show');
+            document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
+        }
+        
+        mobileNavToggle.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+        
+        // Close sidebar when clicking a nav link on mobile
+        document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 768) {
+                    toggleSidebar();
+                }
+            });
+        });
+
+        // Close sidebar when clicking outside
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.sidebar').length && 
+                !$(e.target).closest('.mobile-nav-toggle').length && 
+                sidebar.classList.contains('show')) {
+                toggleSidebar();
+            }
+        });
+
+        // Establecer fecha máxima como hoy para los datepickers
+        const today = new Date().toISOString().split('T')[0];
+        $('#startDate, #endDate').attr('max', today);
+
+        // Validar que la fecha "desde" no sea mayor que "hasta"
+        $('#startDate').on('change', function() {
+            const endDate = $('#endDate').val();
+            if (endDate && this.value > endDate) {
+                alert('La fecha "Desde" no puede ser mayor que la fecha "Hasta"');
+                this.value = '';
+            }
+        });
+
+        $('#endDate').on('change', function() {
+            const startDate = $('#startDate').val();
+            if (startDate && this.value < startDate) {
+                alert('La fecha "Hasta" no puede ser menor que la fecha "Desde"');
+                this.value = '';
+            }
+        });
+    });
+</script>

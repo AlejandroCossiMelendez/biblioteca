@@ -1,0 +1,267 @@
+<%- include('../partials/header') %>
+
+            <!-- Page Header -->
+            <header class="page-header">
+                <div class="container-fluid">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="mb-0">
+                            <i class="fas fa-building me-2"></i>Lista de Editoriales
+                        </h1>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPublisherModal">
+                            <i class="fas fa-plus me-2"></i> Agregar Editorial
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="container-fluid">
+                <div class="card">
+                    <div class="card-body">
+                        <% if (messages.success) { %>
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle me-2"></i><%= messages.success %>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        <% } %>
+
+                        <% if (messages.error) { %>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i><%= messages.error %>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        <% } %>
+
+                        <div class="table-responsive">
+                            <table id="publishersTable" class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% publishers.forEach(publisher => { %>
+                                        <tr>
+                                            <td><%= publisher.id_publisher %></td>
+                                            <td><%= publisher.name %></td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-sm btn-warning edit-btn" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#editPublisherModal"
+                                                            data-id="<%= publisher.id_publisher %>"
+                                                            data-name="<%= publisher.name %>">
+                                                        <i class="fas fa-edit"></i> Editar
+                                                    </button>
+                                                    <form action="/publishers/delete/<%= publisher.id_publisher %>" method="POST" class="d-inline">
+                                                        <button type="submit" class="btn btn-sm btn-danger delete-btn">
+                                                            <i class="fas fa-trash"></i> Eliminar
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Publisher Modal -->
+            <div class="modal fade" id="addPublisherModal" tabindex="-1" aria-labelledby="addPublisherModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addPublisherModalLabel">
+                                <i class="fas fa-plus me-2"></i>Agregar Nueva Editorial
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="addPublisherForm" action="/publishers/add" method="POST">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Nombre de la Editorial</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Guardar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Publisher Modal -->
+            <div class="modal fade" id="editPublisherModal" tabindex="-1" aria-labelledby="editPublisherModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editPublisherModalLabel">
+                                <i class="fas fa-edit me-2"></i>Editar Editorial
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="editPublisherForm" action="/publishers/update/" method="POST">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="editName" class="form-label">Nombre de la Editorial</label>
+                                    <input type="text" class="form-control" id="editName" name="name" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Guardar Cambios
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+<script>
+$(document).ready(function() {
+    // Destruir la instancia existente de DataTable si existe
+    if ($.fn.DataTable.isDataTable('#publishersTable')) {
+        $('#publishersTable').DataTable().destroy();
+    }
+
+    // Inicializar DataTable
+    var table = $('#publishersTable').DataTable({
+        responsive: true,
+        autoWidth: false,
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
+            search: "Buscar:",
+            lengthMenu: "Mostrar _MENU_ registros por página",
+            zeroRecords: "No se encontraron resultados",
+            info: "Mostrando página _PAGE_ de _PAGES_",
+            infoEmpty: "No hay registros disponibles",
+            infoFiltered: "(filtrado de _MAX_ registros totales)",
+            paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "Siguiente",
+                previous: "Anterior"
+            }
+        },
+        order: [[0, 'desc']],
+        pageLength: 10,
+        lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]],
+        columnDefs: [
+            { orderable: false, targets: 2 }
+        ],
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+             '<"row"<"col-sm-12"tr>>' +
+             '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+    });
+
+    // Manejar clic en botón de editar
+    $(document).on('click', '.edit-btn', function() {
+        const id = $(this).data('id');
+        const name = $(this).data('name');
+
+        $('#editPublisherForm').attr('action', `/publishers/update/${id}`);
+        $('#editName').val(name);
+    });
+
+    // Manejar clic en botón de eliminar
+    $(document).on('click', '.delete-btn', function(e) {
+        e.preventDefault();
+        const form = $(this).closest('form');
+        
+        Swal.fire({
+            title: '¿Eliminar editorial?',
+            text: "Esta acción no se puede deshacer",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#f72585',
+            cancelButtonColor: '#8d99ae',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            allowOutsideClick: false,
+            allowEscapeKey: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
+
+    // Manejar envío del formulario de agregar
+    $('#addPublisherForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        Swal.fire({
+            title: '¿Agregar editorial?',
+            text: "¿Estás seguro de que deseas agregar esta editorial?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#4361ee',
+            cancelButtonColor: '#8d99ae',
+            confirmButtonText: 'Sí, agregar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                this.submit();
+            }
+        });
+    });
+
+    // Manejar envío del formulario de editar
+    $('#editPublisherForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        Swal.fire({
+            title: '¿Guardar cambios?',
+            text: "¿Estás seguro de que deseas guardar los cambios?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#4361ee',
+            cancelButtonColor: '#8d99ae',
+            confirmButtonText: 'Sí, guardar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                this.submit();
+            }
+        });
+    });
+
+    // Mostrar mensajes de éxito/error con SweetAlert2
+    const successMessage = '<%= messages.success %>';
+    const errorMessage = '<%= messages.error %>';
+
+    if (successMessage && successMessage !== '') {
+        Swal.fire({
+            title: '¡Éxito!',
+            text: successMessage,
+            icon: 'success',
+            confirmButtonColor: '#4361ee'
+        });
+    }
+
+    if (errorMessage && errorMessage !== '') {
+        Swal.fire({
+            title: 'Error',
+            text: errorMessage,
+            icon: 'error',
+            confirmButtonColor: '#f72585'
+        });
+    }
+});
+</script>
+
+<%- include('../partials/footer') %> 

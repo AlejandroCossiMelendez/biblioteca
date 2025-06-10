@@ -1,0 +1,152 @@
+
+    <%- include('../partials/sidebar', {currentPage: 'authors'}) %>	<!-- Encabezado mejorado -->
+	<header class="page-header bg-light py-4 mb-4 border-bottom">
+		<div class="container-fluid">
+			<div class="d-flex justify-content-between align-items-center">
+				<div class="d-flex align-items-center">
+					<i class="fas fa-user-edit fs-3 text-primary me-3"></i>
+					<div>
+						<i class="fas fa-archive me-2"></i>Autores
+					</div>
+				</div>
+				<div>
+			</div>
+		</div>
+	</header>
+    <% if (messages.success) { %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i><%- messages.success %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <% } %>
+    <% if (messages.error) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i><%- messages.error %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <% } %>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-users me-2"></i>Lista de Autores</h5>
+                <a href="/authors/add" class="btn btn-action btn-light btn-lg">
+                    <i class="fas fa-plus"></i>Nuevo Autor
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <% if(data.length) { %>
+            <div class="table-responsive">
+                <table id="authorsTable" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col" class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <% for(var i = 0; i< data.length; i++) { %>
+                        <tr>
+                            <th scope="row"><%= (i+1) %></th>
+                            <td><%= data[i].name%></td>
+                            <td>
+                                <span class="badge <%= data[i].state === 1 ? 'bg-success' : 'bg-danger' %>">
+                                    <%= data[i].state === 1 ? 'Activo' : 'Inactivo' %>
+                                </span>
+                            </td>
+                            <td class="text-center" style="white-space: nowrap;">
+                                <div class="action-buttons">
+                                    <a href="/authors/edit/<%= data[i].id_author %>" class="btn btn-action btn-success btn-sm">
+                                        <i class="fas fa-pen-to-square"></i>
+                                    </a>
+                                    <a href="/authors/delete/<%= data[i].id_author %>" 
+                                       class="btn btn-action btn-danger btn-sm ms-1"
+                                       onclick="return confirm('¿Está seguro de que desea eliminar este autor?')">
+                                        <i class="fas fa-trash-can"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    <% } %>
+                    </tbody>
+                </table>
+            </div>
+            <% } else { %>
+                <div class="text-center py-5">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <p class="lead text-muted">No se encontraron autores</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <%- include('../partials/footer') %>
+    <script>
+        $(document).ready(function() {
+            $('#authorsTable').DataTable({
+                responsive: true,
+                pageLength: 5,
+                lengthMenu: [5, 10, 25, 50],
+                language: {
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    lengthMenu: "Mostrar _MENU_ registros",
+                    info: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                    infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    infoFiltered: "(filtrado de un total de _MAX_ registros)",
+                    infoPostFix: "",
+                    loadingRecords: "Cargando...",
+                    zeroRecords: "No se encontraron resultados",
+                    emptyTable: "Ningún dato disponible en esta tabla",
+                    paginate: {
+                        first: "Primero",
+                        previous: "Anterior",
+                        next: "Siguiente",
+                        last: "Último"
+                    },
+                    aria: {
+                        sortAscending: ": Activar para ordenar la columna de manera ascendente",
+                        sortDescending: ": Activar para ordenar la columna de manera descendente"
+                    }
+                },
+                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                     '<"row"<"col-sm-12"tr>>' +
+                     '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+            });
+
+            // Mobile Navigation
+            const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarOverlay = document.querySelector('.sidebar-overlay');
+            
+            function toggleSidebar() {
+                sidebar.classList.toggle('show');
+                sidebarOverlay.classList.toggle('show');
+                document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
+            }
+            
+            mobileNavToggle.addEventListener('click', toggleSidebar);
+            sidebarOverlay.addEventListener('click', toggleSidebar);
+            
+            // Close sidebar when clicking a nav link on mobile
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 768) {
+                        toggleSidebar();
+                    }
+                });
+            });
+
+            // Close sidebar when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.sidebar').length && 
+                    !$(e.target).closest('.mobile-nav-toggle').length && 
+                    sidebar.classList.contains('show')) {
+                    toggleSidebar();
+                }
+            });
+        });
+    </script>

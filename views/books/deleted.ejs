@@ -1,7 +1,4 @@
-
-<%- include('../partials/sidebar', {currentPage: 'books'}) %>
-
-
+    <%- include('../partials/sidebar', {currentPage: 'books'}) %>
 	<!-- Encabezado mejorado -->
 	<header class="page-header bg-light py-4 mb-4 border-bottom">
 		<div class="container-fluid">
@@ -9,7 +6,7 @@
 				<div class="d-flex align-items-center">
 					<i class="fas fa-user-edit fs-3 text-primary me-3"></i>
 					<div>
-						<i class="fas fa-archive me-2"></i>Libros
+						<i class="fas fa-archive me-2"></i>Papelera
 					</div>
 				</div>
 				<div>
@@ -33,21 +30,16 @@
     <div class="card">
         <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-book me-2"></i>Lista de Libros</h5>
-                <div>
-                    <a href="/books/inactive" class="btn btn-action btn-light btn-sm btn-trash">
-                        <i class="fas fa-trash"></i>Papelera
-                    </a>
-                    <a href="/books/add" class="btn btn-action btn-light btn-lg ms-2">
-                        <i class="fas fa-plus"></i>Nuevo Libro
-                    </a>
-                </div>
+                <h5 class="mb-0"><i class="fas fa-trash me-2"></i>Libros Eliminados</h5>
+                <a href="/books" class="btn btn-action btn-light btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>Volver a Libros
+                </a>
             </div>
         </div>
         <div class="card-body">
             <% if(data.length) { %>
             <div class="table-responsive">
-                <table class="table table-hover" id="booksTable">
+                <table class="table table-hover" id="deletedBooksTable">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -58,13 +50,14 @@
                             <th>ISBN</th>
                             <th>Año</th>
                             <th>Ejemplares</th>
+                            <th>Fecha Eliminación</th>
                             <th class="text-center" style="min-width: 150px;">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                     <% for(var i = 0; i< data.length; i++) { %>
                         <tr>
-                            <th scope="row"><%= (i+1) %></th>
+                            <td><%= (i+1) %></td>
                             <td><%= data[i].title %></td>
                             <td><%= data[i].author_name %></td>
                             <td><%= data[i].editorial_name %></td>
@@ -72,20 +65,28 @@
                             <td><%= data[i].isbn %></td>
                             <td><%= data[i].year %></td>
                             <td class="text-center">
-                                <span class="badge <%= data[i].available_copies > 0 ? 'bg-primary' : 'bg-orange' %>" 
-                                      style="<%= data[i].available_copies > 0 ? 'background: linear-gradient(145deg, #2196f3, #1976d2) !important' : 'background: linear-gradient(145deg, #ff7043, #ff5722) !important' %>">
-                                    <%= data[i].available_copies %>
+                                <span class="badge" 
+                                      style="background: linear-gradient(145deg, #2196f3, #1976d2) !important">
+                                    <%= data[i].available %>
                                 </span>
                             </td>
+                            <td>
+                                <% if(data[i].deleted_at) { %>
+                                    <%= new Date(data[i].deleted_at).toLocaleDateString('es-ES', { 
+                                        year: 'numeric', 
+                                        month: 'long', 
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    }) %>
+                                <% } else { %>
+                                    <span class="text-muted">No disponible</span>
+                                <% } %>
+                            </td>
                             <td class="text-center" style="white-space: nowrap;">
-                                <div class="action-buttons">
-                                    <a href="/books/edit/<%= data[i].id_book %>" class="btn btn-action btn-success btn-sm">
-                                        <i class="fas fa-pen-to-square"></i>
-                                    </a>
-                                    <a href="/books/delete/<%= data[i].id_book %>" 
-                                       class="btn btn-action btn-danger btn-sm ms-1"
-                                       onclick="return confirm('¿Está seguro de que desea eliminar este libro?')">
-                                        <i class="fas fa-trash-can"></i>
+                                <div class="action-buttons d-inline-flex gap-2">
+                                    <a class="btn btn-success btn-sm" href="/books/restore/<%=data[i].id_book%>" title="Restaurar">
+                                        <i class="fas fa-undo-alt me-1"></i>Restaurar
                                     </a>
                                 </div>
                             </td>
@@ -96,14 +97,13 @@
             </div>
             <% } else { %>
                 <div class="text-center py-5">
-                    <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
-                    <p class="lead text-muted">No se encontraron libros</p>
+                    <i class="fas fa-trash fa-3x text-muted mb-3"></i>
+                    <p class="lead text-muted">No hay libros en la papelera</p>
                 </div>
             <% } %>
         </div>
     </div>
-
-
+    
     <%- include('../partials/footer') %>
     <script>
         $(document).ready(function() {
@@ -115,7 +115,7 @@
                 })
             });
 
-            $('#booksTable').DataTable({
+            $('#deletedBooksTable').DataTable({
                 language: {
                     url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
                     search: "Buscar:",
@@ -134,21 +134,21 @@
                 pageLength: 5,
                 lengthMenu: [[5, 10, 25, -1], [5, 10, 25, "Todos"]],
                 order: [[1, 'asc']],
-                responsive: true,
+                responsive: {
+                    details: {
+                        display: DataTable.Responsive.display.childRow,
+                        type: 'none',
+                        target: ''
+                    }
+                },
                 columnDefs: [
                     {
-                        targets: '_all',
-                        className: 'all'
-                    },
-                    {
-                        targets: [-1], // Columna de acciones
+                        targets: -1,
                         orderable: false,
-                        searchable: false
+                        searchable: false,
+                        responsivePriority: 1
                     }
-                ],
-                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
-                     '<"row"<"col-sm-12"tr>>' +
-                     '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+                ]
             });
         });
     </script>

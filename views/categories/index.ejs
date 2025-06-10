@@ -1,0 +1,344 @@
+<%- include('../partials/header') %>
+
+            <!-- Page Header -->
+            <header class="page-header">
+                <div class="container-fluid">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="mb-0">
+                            <i class="fas fa-tags me-2"></i>Lista de Categorías
+                        </h1>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                            <i class="fas fa-plus me-2"></i> Agregar Categoría
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="container-fluid">
+                <div class="card">
+                    <div class="card-body">
+                        <% if (messages.success) { %>
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle me-2"></i><%= messages.success %>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        <% } %>
+
+                        <% if (messages.error) { %>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i><%= messages.error %>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        <% } %>
+
+                        <div class="table-responsive">
+                            <table id="categoriesTable" class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% categories.forEach(category => { %>
+                                        <tr>
+                                            <td><%= category.id_category %></td>
+                                            <td><%= category.name %></td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-sm btn-warning edit-btn" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#editCategoryModal"
+                                                            data-id="<%= category.id_category %>"
+                                                            data-name="<%= category.name %>">
+                                                    <i class="fas fa-edit"></i> Editar
+                                                    </button>
+                                                    <form action="/categories/delete/<%= category.id_category %>" method="POST" class="d-inline">
+                                                        <button type="submit" class="btn btn-sm btn-danger delete-btn">
+                                                    <i class="fas fa-trash"></i> Eliminar
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Category Modal -->
+            <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addCategoryModalLabel">
+                                <i class="fas fa-plus me-2"></i>Agregar Nueva Categoría
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="addCategoryForm" action="/categories/add" method="POST">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Nombre de la Categoría</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Guardar
+                                </button>
+                            </div>
+                        </form>
+                </div>
+            </div>
+        </div>
+
+            <!-- Edit Category Modal -->
+            <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editCategoryModalLabel">
+                                <i class="fas fa-edit me-2"></i>Editar Categoría
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="editCategoryForm" action="/categories/update/" method="POST">
+                            <div class="modal-body">
+                                <input type="hidden" id="editCategoryId" name="id">
+                                <div class="mb-3">
+                                    <label for="editName" class="form-label">Nombre de la Categoría</label>
+                                    <input type="text" class="form-control" id="editName" name="name" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Guardar Cambios
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+    
+    <script>
+        $(document).ready(function() {
+    // Destruir la instancia existente de DataTable si existe
+    if ($.fn.DataTable.isDataTable('#categoriesTable')) {
+        $('#categoriesTable').DataTable().destroy();
+    }
+
+            // Inicializar DataTable
+            var table = $('#categoriesTable').DataTable({
+                responsive: true,
+                autoWidth: false,
+                language: {
+            decimal: "",
+            emptyTable: "No hay datos disponibles en la tabla",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            infoEmpty: "Mostrando 0 a 0 de 0 registros",
+            infoFiltered: "(filtrado de _MAX_ registros totales)",
+            infoPostFix: "",
+            thousands: ",",
+            lengthMenu: "Mostrar _MENU_ registros",
+            loadingRecords: "Cargando...",
+            processing: "Procesando...",
+                    search: "Buscar:",
+            zeroRecords: "No se encontraron registros coincidentes",
+                    paginate: {
+                        first: "Primero",
+                        last: "Último",
+                        next: "Siguiente",
+                        previous: "Anterior"
+            },
+            aria: {
+                sortAscending: ": activar para ordenar la columna ascendente",
+                sortDescending: ": activar para ordenar la columna descendente"
+                    }
+                },
+                order: [[0, 'desc']],
+                pageLength: 10,
+                lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]],
+                columnDefs: [
+                    { orderable: false, targets: 2 }
+                ],
+                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                     '<"row"<"col-sm-12"tr>>' +
+                     '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+        destroy: true,
+        retrieve: true
+    });
+
+            // Manejar clic en botón de editar
+            $(document).on('click', '.edit-btn', function() {
+                const id = $(this).data('id');
+                const name = $(this).data('name');
+
+                console.log('ID de categoría:', id);
+                $('#editCategoryId').val(id);
+                $('#editName').val(name);
+            });
+
+            // Manejar clic en botón de eliminar
+            $(document).on('click', '.delete-btn', function(e) {
+                e.preventDefault();
+        const form = $(this).closest('form');
+                
+                Swal.fire({
+            title: '¿Eliminar categoría?',
+                    text: "Esta acción no se puede deshacer",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#f72585',
+                    cancelButtonColor: '#8d99ae',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                form.submit();
+                    }
+                });
+            });
+
+            // Manejar envío del formulario de agregar
+    $('#addCategoryForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                const categoryName = $('#name').val();
+
+                // Mostrar la alerta de confirmación
+                Swal.fire({
+                    title: '¿Agregar categoría?',
+                    text: "¿Estás seguro de que deseas agregar esta categoría?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#4361ee',
+                    cancelButtonColor: '#8d99ae',
+                    confirmButtonText: 'Sí, agregar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Enviar el formulario al servidor usando AJAX
+                        $.ajax({
+                            type: 'POST',
+                            url: '/categories/add',
+                            data: { name: categoryName },
+                            success: function(response) {
+                                // Si el servidor responde con éxito
+                                Swal.fire({
+                                    title: '¡Éxito!',
+                                    text: response.success,
+                                    icon: 'success',
+                                    confirmButtonColor: '#4361ee'
+                                }).then(() => {
+                                    location.reload(); // Recargar la página para ver la nueva categoría
+                                });
+                            },
+                            error: function(xhr) {
+                                // Si hay un error, se asume que es un duplicado
+                                if (xhr.status === 400) {
+                                    Swal.fire({
+                                        title: 'Categoría existente',
+                                        text: xhr.responseJSON.error, // Mostrar el mensaje de error del servidor
+                                        icon: 'warning',
+                                        confirmButtonColor: '#f72585'
+                                    });
+                                } else {
+                                    // Manejar otros errores
+                                    Swal.fire({
+                                        title: 'Error',
+                                        text: "Ocurrió un error al agregar la categoría.",
+                                        icon: 'error',
+                                        confirmButtonColor: '#f72585'
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Manejar envío del formulario de edición
+    $('#editCategoryForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                const id = $('#editCategoryId').val();
+                const name = $('#editName').val();
+
+                // Realizar la solicitud fetch
+                fetch(`/categories/update/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name: name }),
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { // Capturar el error y devolver el mensaje
+                            throw new Error(err.error || 'Error en la actualización de la categoría');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    Swal.fire({
+                        title: '¡Éxito!',
+                        text: data.success,
+                        icon: 'success',
+                        confirmButtonColor: '#4361ee'
+                    }).then(() => {
+                        location.reload();
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: error.message, // Mostrar el mensaje de error del servidor
+                        icon: 'error',
+                        confirmButtonColor: '#f72585'
+                    });
+                });
+            });
+
+            // Mostrar mensajes de éxito/error con SweetAlert2
+            const successMessage = '<%= messages.success %>';
+            const errorMessage = '<%= messages.error %>';
+
+            if (successMessage && successMessage !== '') {
+                Swal.fire({
+                    title: '¡Éxito!',
+                    text: successMessage,
+                    icon: 'success',
+                    confirmButtonColor: '#4361ee'
+                });
+            }
+
+            if (errorMessage && errorMessage !== '') {
+                Swal.fire({
+                    title: 'Error',
+                    text: errorMessage,
+                    icon: 'error',
+                    confirmButtonColor: '#f72585'
+                });
+            }
+
+            console.log($('#editCategoryId').val());
+        });
+    </script>
+
+<%- include('../partials/footer') %>

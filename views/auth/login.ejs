@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestión de Libros</title>
+    <title>Login | Sistema Gestión de Libros</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -11,7 +11,7 @@
     <style>
         :root {
             --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
+            --secondary-color: #3e37c99d;
             --accent-color: #4895ef;
             --success-color: #4cc9f0;
             --danger-color: #f72585;
@@ -21,7 +21,11 @@
         }
 
         body {
-            background-color: var(--background-color);
+
+            background-image: url('/images/fondo_login.jpg');
+            background-size: cover; /* Para que cubra toda la pantalla */
+            background-position: center; /* Centrado */
+            background-repeat: no-repeat; /* Que no se repita */
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: var(--text-color);
         }
@@ -46,60 +50,60 @@
             transform: translateY(-1px);
         }
 
-        .hero-section {
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            color: white;
+        .login-section {
+            min-height: calc(100vh - 120px);
+            display: flex;
+            align-items: center;
             padding: 4rem 0;
-            margin-bottom: 3rem;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
         }
 
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
-            z-index: 0;
-        }
-
-        .hero-section .container {
-            position: relative;
-            z-index: 2;
-        }
-
-        .hero-section .btn {
-            position: relative;
-            z-index: 3;
-            cursor: pointer;
-            pointer-events: auto;
-        }
-
-        .card {
+        .login-card {
             border: none;
             border-radius: 15px;
             box-shadow: 0 4px 20px rgba(67, 97, 238, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
             background: white;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 2.5rem;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.15);
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .login-header h2 {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
         }
 
         .btn {
             border-radius: 8px;
-            padding: 10px 20px;
+            padding: 12px 20px;
             font-weight: 500;
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             font-size: 0.9rem;
+            width: 100%;
         }
 
         .btn-primary {
@@ -113,33 +117,10 @@
             transform: translateY(-2px);
         }
 
-        .btn-success {
-            background-color: var(--success-color);
-            border-color: var(--success-color);
-        }
-
-        .btn-success:hover {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-            transform: translateY(-2px);
-        }
-
-        .feature-icon {
-            font-size: 2.5rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover .feature-icon {
-            transform: scale(1.1);
-        }
-
         .footer {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
-            padding: 2rem 0;
-            margin-top: 3rem;
+            padding: 1.5rem 0;
             position: relative;
             overflow: hidden;
         }
@@ -153,12 +134,64 @@
             bottom: 0;
             background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
         }
+
+        .form-floating label {
+            color: var(--light-text);
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: 0.5rem;
+        }
+
+        .forgot-password a {
+            color: var(--light-text);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password a:hover {
+            color: var(--primary-color);
+        }
+
+        .register-link {
+            color: var(--primary-color);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .register-link:hover {
+            text-decoration: underline;
+        }
+
+        .modal-header {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .modal-title {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .modal-header .btn-close {
+            margin-top: -0.5rem;
+        }
+
+        .modal-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            text-align: center;
+            display: block;
+        }
     </style>
 </head>
 <body>
     <!-- Navegación -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
+
         <a href="/" class="sidebar-brand only-logo">
             <img src="/images/logo.png" alt="Logo" width="180" class="logo">
         </a>
@@ -168,12 +201,12 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="/">
+                        <a class="nav-link" href="/">
                             <i class="fas fa-home me-1"></i> Inicio
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/login">
+                        <a class="nav-link active" href="/login">
                             <i class="fas fa-sign-in-alt me-2"></i> Login
                         </a>
                     </li>
@@ -182,48 +215,40 @@
         </div>
     </nav>
 
-    <!-- Sección Hero -->
-    <section class="hero-section">
-        <div class="container text-center">
-            <h1 class="display-4 mb-4">Bienvenido al Sistema de Gestión de Libros</h1>
-            <p class="lead mb-4">Gestiona tu colección de libros de manera sencilla</p>
-            <div class="d-flex justify-content-center gap-3" style="position: relative; z-index: 3;">
-                <a href="/login" class="btn btn-light btn-lg" role="button" style="pointer-events: auto;">
-                    <i class="fas fa-book me-2"></i>Ver Libros
-                </a>
-            </div>
-        </div>
-    </section>
+    <!-- Sección de Login -->
+    <section class="login-section">
+        <div class="container">
+            <div class="login-card">
+                <div class="login-header">
+                    <i class="fas fa-user-lock"></i>
+                    <h2>Iniciar Sesión</h2>
+                    <p class="text-muted">Ingresa tus credenciales para acceder al sistema</p>
+                </div>
+                
+                <% if (typeof error !== 'undefined') { %>
+                    <div class="alert alert-danger" role="alert">
+                        <%= error %>
+                    </div>
+                <% } %>
 
-    <!-- Sección de Características -->
-    <section class="container mb-5">
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100 text-center p-4">
-                    <div class="feature-icon">
-                        <i class="fas fa-book"></i>
+                <form action="/auth/login" method="POST">
+                    <div class="form-floating mb-3">
+
+                        <input type="text" class="form-control" id="username" name="username" required placeholder="Usuario">
+                        <label for="email">Usuario</label>
                     </div>
-                    <h3>Colección de Libros</h3>
-                    <p class="text-muted">Gestiona toda tu colección de libros en un solo lugar</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 text-center p-4">
-                    <div class="feature-icon">
-                        <i class="fas fa-edit"></i>
+                    
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="password" name="password" required placeholder="Contraseña">
+
+                        <label for="password">Contraseña</label>
                     </div>
-                    <h3>Gestión Sencilla</h3>
-                    <p class="text-muted">Agrega, edita y elimina libros con una interfaz simple</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 text-center p-4">
-                    <div class="feature-icon">
-                        <i class="fas fa-search"></i>
-                    </div>
-                    <h3>Búsqueda Rápida</h3>
-                    <p class="text-muted">Encuentra tus libros rápidamente con nuestra función de búsqueda</p>
-                </div>
+                    
+                    <button type="submit" class="btn btn-primary mb-3">
+                        <i class="fas fa-sign-in-alt me-2"></i> Ingresar
+                    </button>
+                    
+                </form>
             </div>
         </div>
     </section>

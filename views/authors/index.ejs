@@ -1,0 +1,289 @@
+<%- include('../partials/header') %>
+
+            <!-- Page Header -->
+            <header class="page-header">
+                <div class="container-fluid">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="mb-0">
+                            <i class="fas fa-user-edit me-2"></i>Lista de Autores
+                        </h1>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAuthorModal">
+                            <i class="fas fa-plus me-2"></i> Agregar Autor
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="container-fluid">
+                <div class="card">
+                    <div class="card-body">
+                        <% if (messages.success) { %>
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle me-2"></i><%= messages.success %>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        <% } %>
+
+                        <% if (messages.error) { %>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i><%= messages.error %>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        <% } %>
+
+                        <div class="table-responsive">
+                            <table id="authorsTable" class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% authors.forEach(author => { %>
+                                        <tr>
+                                            <td><%= author.id_author %></td>
+                                            <td><%= author.name %></td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-sm btn-warning edit-btn" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#editAuthorModal"
+                                                            data-id="<%= author.id_author %>"
+                                                            data-name="<%= author.name %>">
+                                                        <i class="fas fa-edit"></i> Editar
+                                                    </button>
+                                                    <form action="/authors/delete/<%= author.id_author %>" method="POST" class="d-inline">
+                                                        <button type="submit" class="btn btn-sm btn-danger delete-btn">
+                                                            <i class="fas fa-trash"></i> Eliminar
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Author Modal -->
+            <div class="modal fade" id="addAuthorModal" tabindex="-1" aria-labelledby="addAuthorModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addAuthorModalLabel">
+                                <i class="fas fa-plus me-2"></i>Agregar Nuevo Autor
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="addAuthorForm">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Nombre del Autor</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Guardar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Author Modal -->
+            <div class="modal fade" id="editAuthorModal" tabindex="-1" aria-labelledby="editAuthorModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editAuthorModalLabel">
+                                <i class="fas fa-edit me-2"></i>Editar Autor
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="editAuthorForm">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="editName" class="form-label">Nombre del Autor</label>
+                                    <input type="text" class="form-control" id="editName" name="name" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Guardar Cambios
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+<script>
+$(document).ready(function() {
+    // Inicializar DataTable
+    var table = $('#authorsTable').DataTable({
+        responsive: true,
+        autoWidth: false,
+        language: {
+            search: "Buscar:",
+            lengthMenu: "Mostrar _MENU_ registros por página",
+            zeroRecords: "No se encontraron resultados",
+            info: "Mostrando página _PAGE_ de _PAGES_",
+            infoEmpty: "No hay registros disponibles",
+            infoFiltered: "(filtrado de _MAX_ registros totales)",
+            paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "Siguiente",
+                previous: "Anterior"
+            }
+        },
+        order: [[0, 'desc']],
+        pageLength: 10,
+        lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]],
+        columnDefs: [
+            { orderable: false, targets: 2 }
+        ],
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+             '<"row"<"col-sm-12"tr>>' +
+             '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+    });
+
+    // Manejar clic en botón de editar
+    $(document).on('click', '.edit-btn', function() {
+        const id = $(this).data('id');
+        const name = $(this).data('name');
+        
+        // Actualizar el action del formulario
+        $('#editAuthorForm').attr('action', `/authors/update/${id}`);
+        
+        // Llenar el campo del formulario
+        $('#editName').val(name);
+    });
+
+    // Manejar clic en botón de eliminar
+    $(document).on('click', '.delete-btn', function(e) {
+        e.preventDefault();
+        const form = $(this).closest('form');
+        
+        Swal.fire({
+            title: '¿Eliminar autor?',
+            text: "Esta acción no se puede deshacer",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#f72585',
+            cancelButtonColor: '#8d99ae',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            allowOutsideClick: false,
+            allowEscapeKey: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
+
+    // Manejar envío del formulario de agregar
+    $('#addAuthorForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        const authorName = $('#name').val();
+
+        // Realizar la solicitud fetch
+        fetch('/authors/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name: authorName }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.error || 'Error al agregar el autor');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            Swal.fire({
+                title: '¡Éxito!',
+                text: data.success,
+                icon: 'success',
+                confirmButtonColor: '#4361ee'
+            }).then(() => {
+                location.reload();
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error',
+                text: error.message,
+                icon: 'error',
+                confirmButtonColor: '#f72585'
+            });
+        });
+    });
+
+    // Manejar envío del formulario de edición
+    $('#editAuthorForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        const id = $('#editAuthorForm').attr('action').split('/').pop(); // Obtener el ID de la acción
+        const name = $('#editName').val();
+
+        // Realizar la solicitud fetch
+        fetch(`/authors/update/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name: name }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.error || 'Error en la actualización del autor');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            Swal.fire({
+                title: '¡Éxito!',
+                text: data.success,
+                icon: 'success',
+                confirmButtonColor: '#4361ee'
+            }).then(() => {
+                location.reload();
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error',
+                text: error.message,
+                icon: 'error',
+                confirmButtonColor: '#f72585'
+            });
+        });
+    });
+});
+</script>
+
+<%- include('../partials/footer') %> 

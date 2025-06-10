@@ -1,0 +1,697 @@
+<%- include('./partials/sidebar', {currentPage: 'dashboard'}) %>
+
+<div class="dashboard-container">
+    <!-- Encabezado del Dashboard -->
+    <header class="dashboard-header">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="header-title">
+                    <i class="fas fa-tachometer-alt-alt me-2"></i>
+                    <h1>Panel de Control</h1>
+                    <span class="badge bg-primary ms-2">v2.1</span>
+                </div>
+                <div class="header-actions">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="timeRangeDropdown" data-bs-toggle="dropdown">
+                            <i class="far fa-calendar-alt me-1"></i> Últimos 30 días
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item time-range" href="#" data-range="7">Últimos 7 días</a></li>
+                            <li><a class="dropdown-item time-range" href="#" data-range="30">Últimos 30 días</a></li>
+                            <li><a class="dropdown-item time-range" href="#" data-range="90">Últimos 3 meses</a></li>
+                            <li><a class="dropdown-item time-range" href="#" data-range="365">Último año</a></li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-primary ms-2" id="refreshDashboard">
+                        <i class="fas fa-sync-alt me-1"></i> Actualizar
+                    </button>
+                </div>
+            </div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                </ol>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="dashboard-content">
+        <div class="container-fluid">
+            <!-- Tarjetas Resumen -->
+            <div class="row summary-cards">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card summary-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="card-title">Préstamos Activos</h5>
+                                    <h2 class="card-value" id="activeLoans">0</h2>
+                                </div>
+                                <div class="icon-circle bg-primary">
+                                    <i class="fas fa-book-open text-white"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <span class="text-success">
+                                    <i class="fas fa-caret-up me-1"></i>
+                                    <span id="loansChange">0</span>% vs periodo anterior
+                                </span>
+                                <div class="progress mt-2">
+                                    <div class="progress-bar bg-primary" id="loansProgress" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card summary-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="card-title">Nuevos Usuarios</h5>
+                                    <h2 class="card-value" id="newUsers">0</h2>
+                                </div>
+                                <div class="icon-circle bg-success">
+                                    <i class="fas fa-user-plus text-white"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <span class="text-success">
+                                    <i class="fas fa-caret-up me-1"></i>
+                                    <span id="usersChange">0</span>% vs periodo anterior
+                                </span>
+                                <div class="progress mt-2">
+                                    <div class="progress-bar bg-success" id="usersProgress" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card summary-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="card-title">Libros Disponibles</h5>
+                                    <h2 class="card-value" id="availableBooks">0</h2>
+                                </div>
+                                <div class="icon-circle bg-info">
+                                    <i class="fas fa-book text-white"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <span class="text-danger">
+                                    <i class="fas fa-caret-down me-1"></i>
+                                    <span id="booksChange">0</span>% vs periodo anterior
+                                </span>
+                                <div class="progress mt-2">
+                                    <div class="progress-bar bg-info" id="booksProgress" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card summary-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="card-title">Devoluciones Atrasadas</h5>
+                                    <h2 class="card-value" id="overdueLoans">0</h2>
+                                </div>
+                                <div class="icon-circle bg-warning">
+                                    <i class="fas fa-exclamation-triangle text-white"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <span class="text-success">
+                                    <i class="fas fa-caret-down me-1"></i>
+                                    <span id="overdueChange">0</span>% vs periodo anterior
+                                </span>
+                                <div class="progress mt-2">
+                                    <div class="progress-bar bg-warning" id="overdueProgress" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos Principales -->
+            <div class="row">
+                <div class="col-lg-8 mb-4">
+                    <div class="card chart-card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title">
+                                <i class="fas fa-chart-line me-2"></i>Actividad de Préstamos
+                            </h5>
+                            <div class="chart-actions">
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-outline-secondary chart-type active" data-type="line">
+                                        <i class="fas fa-chart-line"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary chart-type" data-type="bar">
+                                        <i class="fas fa-chart-bar"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="loansChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 mb-4">
+                    <div class="card chart-card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title">
+                                <i class="fas fa-chart-pie me-2"></i>Distribución por Categorías
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="categoriesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla y Mapa -->
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title">
+                                <i class="fas fa-table me-2"></i>Últimos Préstamos
+                            </h5>
+                            <a href="/loans" class="btn btn-sm btn-outline-primary">Ver todos</a>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Usuario</th>
+                                            <th>Libro</th>
+                                            <th>Fecha</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recentLoansTable">
+                                        <!-- Datos dinámicos se insertarán aquí -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title">
+                                <i class="fas fa-map-marked-alt me-2"></i>Distribución Geográfica
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="map" style="height: 300px; width: 100%;"></div>
+                            <div class="mt-3">
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="metric-box">
+                                            <div class="metric-value" id="region1">0</div>
+                                            <div class="metric-label">Región Norte</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="metric-box">
+                                            <div class="metric-value" id="region2">0</div>
+                                            <div class="metric-label">Región Centro</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="metric-box">
+                                            <div class="metric-value" id="region3">0</div>
+                                            <div class="metric-label">Región Sur</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<%- include('partials/footer') %>
+
+<!-- Estilos personalizados para el dashboard -->
+<style>
+    .dashboard-container {
+        background-color: #f5f7fa;
+        min-height: 100vh;
+    }
+
+    .dashboard-header {
+        background-color: #fff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem 0;
+        margin-bottom: 1.5rem;
+    }
+
+    .header-title {
+        display: flex;
+        align-items: center;
+    }
+
+    .header-title h1 {
+        margin-bottom: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .header-title i {
+        font-size: 1.5rem;
+        color: #4e73df;
+    }
+
+    .breadcrumb {
+        background-color: transparent;
+        padding: 0.5rem 0;
+    }
+
+    .summary-card {
+        border: none;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+    }
+
+    .summary-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .card-title {
+        font-size: 0.9rem;
+        color: #6c757d;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0;
+    }
+
+    .icon-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .chart-card {
+        border: none;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.05);
+    }
+
+    .chart-card .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chart-card .card-title {
+        font-size: 1rem;
+        color: #2c3e50;
+        margin-bottom: 0;
+    }
+
+    .chart-card .card-title i {
+        color: #4e73df;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+
+    .metric-box {
+        padding: 0.5rem;
+    }
+
+    .metric-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+
+    .metric-label {
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+
+    @media (max-width: 768px) {
+        .header-title h1 {
+            font-size: 1.25rem;
+        }
+
+        .header-actions {
+            margin-top: 1rem;
+        }
+
+        .card-value {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<!-- Scripts para gráficos y datos dinámicos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css" />
+
+<script>
+    $(document).ready(function() {
+        // Variables de control
+        let currentRange = 30;
+        let loansChart, categoriesChart;
+        let map;
+
+        // Inicializar dashboard
+        initDashboard();
+
+        // Manejar cambio de rango de tiempo
+        $('.time-range').on('click', function(e) {
+            e.preventDefault();
+            currentRange = $(this).data('range');
+            $('#timeRangeDropdown').html(`<i class="far fa-calendar-alt me-1"></i> ${$(this).text()}`);
+            updateDashboard();
+        });
+
+        // Manejar actualización manual
+        $('#refreshDashboard').on('click', function() {
+            $(this).find('i').addClass('fa-spin');
+            updateDashboard().then(() => {
+                $(this).find('i').removeClass('fa-spin');
+            });
+        });
+
+        // Cambiar tipo de gráfico
+        $('.chart-type').on('click', function() {
+            $('.chart-type').removeClass('active');
+            $(this).addClass('active');
+            updateChartType($(this).data('type'));
+        });
+
+        // Función de inicialización
+        function initDashboard() {
+            // Inicializar map
+            initMap();
+            
+            // Cargar datos iniciales
+            updateDashboard();
+        }
+
+        // Función para actualizar todo el dashboard
+        async function updateDashboard() {
+            await updateSummaryCards();
+            await updateCharts();
+            await updateRecentLoans();
+            await updateMapData();
+        }
+
+        // Generar datos aleatorios para las tarjetas de resumen
+        function updateSummaryCards() {
+            return new Promise((resolve) => {
+                // Simular carga de datos
+                setTimeout(() => {
+                    const activeLoans = Math.floor(Math.random() * 200) + 50;
+                    const newUsers = Math.floor(Math.random() * 50) + 10;
+                    const availableBooks = Math.floor(Math.random() * 1000) + 500;
+                    const overdueLoans = Math.floor(Math.random() * 30) + 5;
+
+                    // Actualizar valores
+                    $('#activeLoans').text(activeLoans);
+                    $('#newUsers').text(newUsers);
+                    $('#availableBooks').text(availableBooks);
+                    $('#overdueLoans').text(overdueLoans);
+
+                    // Actualizar porcentajes y barras de progreso
+                    const loansChange = (Math.random() * 20 - 5).toFixed(1);
+                    const usersChange = (Math.random() * 25).toFixed(1);
+                    const booksChange = (Math.random() * 10 - 8).toFixed(1);
+                    const overdueChange = (Math.random() * 15 - 10).toFixed(1);
+
+                    $('#loansChange').text(loansChange);
+                    $('#usersChange').text(usersChange);
+                    $('#booksChange').text(booksChange);
+                    $('#overdueChange').text(overdueChange);
+
+                    $('#loansProgress').css('width', `${Math.min(100, activeLoans / 2)}%`);
+                    $('#usersProgress').css('width', `${Math.min(100, newUsers * 2)}%`);
+                    $('#booksProgress').css('width', `${Math.min(100, availableBooks / 10)}%`);
+                    $('#overdueProgress').css('width', `${Math.min(100, overdueLoans * 3)}%`);
+
+                    // Cambiar color del texto según si es positivo o negativo
+                    $('#loansChange').parent().toggleClass('text-success text-danger', loansChange < 0);
+                    $('#usersChange').parent().toggleClass('text-success text-danger', usersChange < 0);
+                    $('#booksChange').parent().toggleClass('text-success text-danger', booksChange > 0);
+                    $('#overdueChange').parent().toggleClass('text-success text-danger', overdueChange > 0);
+
+                    resolve();
+                }, 500);
+            });
+        }
+
+        // Actualizar gráficos
+        function updateCharts() {
+            return new Promise((resolve) => {
+                // Datos para el gráfico de préstamos
+                const labels = [];
+                const today = new Date();
+                
+                for (let i = currentRange - 1; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(today.getDate() - i);
+                    labels.push(date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }));
+                }
+
+                const loansData = Array(currentRange).fill(0).map(() => Math.floor(Math.random() * 20) + 5);
+                const returnsData = Array(currentRange).fill(0).map(() => Math.floor(Math.random() * 18) + 3);
+
+                // Datos para el gráfico de categorías
+                const categories = ['Ficción', 'No Ficción', 'Ciencia', 'Historia', 'Arte', 'Tecnología'];
+                const categoriesData = categories.map(() => Math.floor(Math.random() * 100) + 20);
+
+                // Destruir gráficos existentes si existen
+                if (loansChart) loansChart.destroy();
+                if (categoriesChart) categoriesChart.destroy();
+
+                // Gráfico de préstamos
+                const loansCtx = document.getElementById('loansChart').getContext('2d');
+                loansChart = new Chart(loansCtx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Préstamos',
+                                data: loansData,
+                                borderColor: '#4e73df',
+                                backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                                tension: 0.3,
+                                fill: true
+                            },
+                            {
+                                label: 'Devoluciones',
+                                data: returnsData,
+                                borderColor: '#1cc88a',
+                                backgroundColor: 'rgba(28, 200, 138, 0.05)',
+                                tension: 0.3,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Gráfico de categorías
+                const categoriesCtx = document.getElementById('categoriesChart').getContext('2d');
+                categoriesChart = new Chart(categoriesCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: categories,
+                        datasets: [{
+                            data: categoriesData,
+                            backgroundColor: [
+                                '#4e73df',
+                                '#1cc88a',
+                                '#36b9cc',
+                                '#f6c23e',
+                                '#e74a3b',
+                                '#858796'
+                            ],
+                            hoverBackgroundColor: [
+                                '#2e59d9',
+                                '#17a673',
+                                '#2c9faf',
+                                '#dda20a',
+                                '#be2617',
+                                '#6c757d'
+                            ],
+                            hoverBorderColor: "rgba(234, 236, 244, 1)",
+                        }],
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '70%'
+                    }
+                });
+
+                resolve();
+            });
+        }
+
+        // Cambiar tipo de gráfico
+        function updateChartType(type) {
+            if (loansChart) {
+                loansChart.config.type = type;
+                loansChart.update();
+            }
+        }
+
+        // Actualizar tabla de préstamos recientes
+        function updateRecentLoans() {
+            return new Promise((resolve) => {
+                const users = ['Juan Pérez', 'María García', 'Carlos López', 'Ana Martínez', 'Luisa Rodríguez'];
+                const books = [
+                    'Cien años de soledad',
+                    'El Principito',
+                    '1984',
+                    'Don Quijote',
+                    'Orgullo y prejuicio',
+                    'Crimen y castigo'
+                ];
+                const statuses = [
+                    { text: 'Activo', class: 'success' },
+                    { text: 'Atrasado', class: 'warning' },
+                    { text: 'Devuelto', class: 'info' }
+                ];
+
+                let tableContent = '';
+                const today = new Date();
+
+                for (let i = 0; i < 5; i++) {
+                    const daysAgo = Math.floor(Math.random() * 7);
+                    const date = new Date();
+                    date.setDate(today.getDate() - daysAgo);
+                    
+                    const user = users[Math.floor(Math.random() * users.length)];
+                    const book = books[Math.floor(Math.random() * books.length)];
+                    const status = statuses[Math.floor(Math.random() * statuses.length)];
+
+                    tableContent += `
+                        <tr>
+                            <td>${user}</td>
+                            <td>${book}</td>
+                            <td>${date.toLocaleDateString('es-ES')}</td>
+                            <td><span class="badge bg-${status.class}">${status.text}</span></td>
+                        </tr>
+                    `;
+                }
+
+                $('#recentLoansTable').html(tableContent);
+                resolve();
+            });
+        }
+
+        // Inicializar mapa
+        function initMap() {
+            map = L.map('map').setView([40.4168, -3.7038], 6); // Centro de España
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Añadir marcadores de ejemplo
+            const cities = [
+                { name: "Madrid", coords: [40.4168, -3.7038], value: 0 },
+                { name: "Barcelona", coords: [41.3851, 2.1734], value: 0 },
+                { name: "Valencia", coords: [39.4699, -0.3763], value: 0 },
+                { name: "Sevilla", coords: [37.3891, -5.9845], value: 0 },
+                { name: "Bilbao", coords: [43.2630, -2.9350], value: 0 }
+            ];
+
+            cities.forEach(city => {
+                L.marker(city.coords)
+                    .addTo(map)
+                    .bindPopup(`<b>${city.name}</b><br>Préstamos: ${city.value}`);
+            });
+        }
+
+        // Actualizar datos del mapa
+        function updateMapData() {
+            return new Promise((resolve) => {
+                $('#region1').text(Math.floor(Math.random() * 100) + 50);
+                $('#region2').text(Math.floor(Math.random() * 150) + 100);
+                $('#region3').text(Math.floor(Math.random() * 80) + 30);
+                resolve();
+            });
+        }
+    });
+</script>

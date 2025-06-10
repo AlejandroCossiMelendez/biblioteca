@@ -7,11 +7,16 @@ var logger = require('morgan');
 var flash = require('express-flash');
 var session = require('express-session');
 var mysql = require('mysql');
-var db = require('./lib/db'); // Fixed path to db.js
+var connection  = require('./lib/db');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var usuariosRouter = require('./routes/usuarios');
 var booksRouter = require('./routes/books');
+var authorsRouter = require('./routes/authors');
+var editorialsRouter = require('./routes/editorials');
+var categoriesRouter = require('./routes/categories');
+var authRouter = require('./routes/auth');
+var loansRouter = require('./routes/loans');
 
 var app = express();
 
@@ -19,54 +24,83 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// Middleware setup
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true })); 
+
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Session setup
+// Configuración de sesión
 app.use(session({ 
-    cookie: { maxAge: 60000 },
+    cookie: { 
+        maxAge: 3600000,
+        httpOnly: true
+    },
     store: new session.MemoryStore,
-    saveUninitialized: true,
-    resave: 'true',
+    saveUninitialized: false,
+    resave: false,
     secret: 'secret'
 }));
 
-// Flash messages setup
 app.use(flash());
 
-// Make flash messages available to all views
+// Hacer disponible el usuario en todas las vistas
 app.use((req, res, next) => {
-    res.locals.messages = req.flash();
+    res.locals.user = req.session.user;
     next();
 });
 
-// Make db available to all routes
-app.use((req, res, next) => {
-    req.db = db;
-    next();
-});
+// Middleware de autenticación
+const requireAuth = (req, res, next) => {
+    if (req.session && req.session.isAuthenticated) {
+        return next();
+    }
+    req.flash('error', 'Por favor inicie sesión para continuar');
+    return res.redirect('/auth/login');
+};
 
-// Routes setup
+// Middleware de control de acceso por rol
+const checkRole = (allowedRoles) => {
+    return (req, res, next) => {
+        if (!req.session.user || !allowedRoles.includes(req.session.user.role)) {
+            req.flash('error', 'No tienes permiso para acceder a esta sección');
+            return res.redirect('/auth/login');
+        }
+        next();
+    };
+};
+
+// Rutas públicas
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/books', booksRouter);
+app.use('/auth', authRouter);
+app.use(express.static('public'));
+
+// Rutas protegidas con autenticación y control de roles
+app.use('/usuarios', requireAuth, checkRole(['admin']), usuariosRouter);
+app.use('/books', requireAuth, checkRole(['admin', 'librarian']), booksRouter);
+app.use('/authors', requireAuth, checkRole(['admin']), authorsRouter);
+app.use('/editorials', requireAuth, checkRole(['admin']), editorialsRouter);
+app.use('/categories', requireAuth, checkRole(['admin']), categoriesRouter);
+app.use('/loans', requireAuth, checkRole(['admin', 'librarian', 'user']), loansRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
+    if (!req.session || !req.session.isAuthenticated) {
+        return res.redirect('/auth/login');
+    }
     next(createError(404));
 });
 
 // error handler
 app.use(function(err, req, res, next) {
-    // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-    // render the error page
+    if (!req.session || !req.session.isAuthenticated) {
+        return res.redirect('/auth/login');
+    }
+
     res.status(err.status || 500);
     res.render('error');
 });

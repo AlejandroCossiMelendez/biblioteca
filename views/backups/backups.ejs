@@ -1,0 +1,290 @@
+<%- include('../partials/header') %>
+
+<!-- Page Header -->
+<header class="page-header">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="mb-0">
+                <i class="fas fa-archive me-2"></i>Backups
+            </h1>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="authors-tab" data-bs-toggle="tab" href="#authors" role="tab">Authors</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="books-tab" data-bs-toggle="tab" href="#books" role="tab">Books</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="categories-tab" data-bs-toggle="tab" href="#categories" role="tab">Categories</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="publishers-tab" data-bs-toggle="tab" href="#publishers" role="tab">Publishers</a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="myTabContent">
+                <!-- Tab de Autores -->
+                <div class="tab-pane fade show active" id="authors" role="tabpanel" aria-labelledby="authors-tab">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% authors.forEach(author => { %>
+                                    <tr class="clickable-row" data-id="<%= author.id_author %>">
+                                        <td><%= author.name %></td>
+                                        <td>
+                                            <button type="button" class="btn btn-success restore-button" data-id="<%= author.id_author %>" data-type="authors">
+                                                <i class="fas fa-undo"></i> Restaurar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="details-row" id="details-author-<%= author.id_author %>" style="display: none;">
+                                        <td colspan="2">
+                                            <p>Detalles adicionales sobre el autor.</p>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab de Libros -->
+                <div class="tab-pane fade" id="books" role="tabpanel" aria-labelledby="books-tab">
+                    <div class="table-responsive">
+                        <table id="booksTable" class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th> <!-- Columna control para Responsive -->
+                                    <th>Título</th>
+                                    <th>Autor</th>
+                                    <th>Categoría</th>
+                                    <th>Editorial</th>
+                                    <th>ISBN</th>
+                                    <th>Creado</th>
+                                    <th>Actualizado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% books.forEach(book => { %>
+                                    <tr>
+                                        <td></td> <!-- celda control vacía -->
+                                        <td><%= book.name %></td>
+                                        <td><%= book.author_name %></td>
+                                        <td><%= book.category_name %></td>
+                                        <td><%= book.publisher_name %></td>
+                                        <td><%= book.isbn %></td>
+                                        <td><%= new Date(book.created_at).toLocaleDateString('en-CA') %></td>
+                                        <td><%= new Date(book.updated_at).toLocaleDateString('en-CA') %></td>
+                                        <td>
+                                            <button type="button" class="btn btn-success restore-button" data-id="<%= book.id_book %>" data-type="books">
+                                                <i class="fas fa-undo"></i> Restaurar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                
+                <!-- Categories Tab -->
+                <div class="tab-pane fade" id="categories" role="tabpanel" aria-labelledby="categories-tab">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% categories.forEach(category => { %>
+                                <tr>
+                                    <td><%= category.name %></td>
+                                    <td>
+                                        <button type="button" class="btn btn-success restore-button" data-id="<%=  category.id_category %>" data-type="categories">
+                                            <i class="fas fa-undo"></i> Restaurar
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Tab de Editoriales -->
+                <div class="tab-pane fade" id="publishers" role="tabpanel" aria-labelledby="publishers-tab">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% publishers.forEach(publisher => { %>
+                                    <tr class="clickable-row" data-id="<%= publisher.id_publisher %>">
+                                        <td><%= publisher.name %></td>
+                                        <td>
+                                            <button type="button" class="btn btn-success restore-button" data-id="<%= publisher.id_publisher %>" data-type="publishers">
+                                                <i class="fas fa-undo"></i> Restaurar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="details-row" id="details-<%= publisher.id_publisher %>" style="display: none;">
+                                        <td colspan="2">
+                                            <p>Detalles adicionales sobre la editorial.</p>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>
+<script>
+    $(document).ready(function() {
+        $('#booksTable').DataTable({
+            responsive: {
+                breakpoints: [
+                    { name: 'desktop', width: Infinity },
+                    { name: 'tablet',  width: 1024 },
+                    { name: 'phone',   width: 768 }
+                ],
+                details: {
+                    type: 'column',
+                    target: 0,
+                    renderer: function (api, rowIdx, columns) {
+                        var data = $.map(columns, function (col, i) {
+                            // Solo mostrar columnas ocultas (excepto la columna de control)
+                            return col.hidden && col.columnIndex !== 0 ?
+                                '<tr>' +
+                                    '<td class="fw-bold">' + col.title + ':</td>' +
+                                    '<td>' + (col.data || 'N/A') + '</td>' +
+                                '</tr>' :
+                                '';
+                        }).join('');
+    
+                        return data ?
+                            $('<table class="table table-sm table-details"/>').append('<tbody>' + data + '</tbody>') :
+                            false;
+                    }
+                }
+            },
+            columnDefs: [
+                { 
+                    className: 'control', 
+                    orderable: false, 
+                    targets: 0,
+                    defaultContent: '<i class="fas fa-chevron-circle-down"></i>',
+                    width: '20px'
+                },
+                { responsivePriority: 1, targets: [1, 2, 8] },  // Título, Autor y Acciones siempre visibles
+                { responsivePriority: 1000, targets: '_all' }   // Todas las demás columnas se ocultan primero
+            ],
+            order: [[1, 'asc']],
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+                "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ registros",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            autoWidth: false,
+            dom: '<"top"lf>rt<"bottom"ip>'
+        });
+    
+        // Actualizar ícono cuando se expande/contrae fila responsive
+        $('#booksTable').on('responsive-display.dt', function (e, api, row, showHide, update) {
+            var $icon = $(row.node()).find('.control i');
+            if (showHide) {
+                $icon.removeClass('fa-chevron-circle-down').addClass('fa-chevron-circle-up');
+            } else {
+                $icon.removeClass('fa-chevron-circle-up').addClass('fa-chevron-circle-down');
+            }
+        });
+        // Confirmación de restauración
+        $(document).on('click', '.restore-button', function (e) {
+            e.preventDefault(); // Previene el comportamiento por defecto
+            var id = $(this).data('id'); // Obtiene el ID del registro
+            var type = $(this).data('type'); // Asegúrate de que tengas un data-type en el botón
+
+            console.log('ID del registro:', id); // Agrega esta línea para depuración
+
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡Esto restaurará el elemento!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, restaurar!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Realiza la solicitud fetch para restaurar el registro
+                    fetch(`/backups/restore/${type}/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json(); // Asumiendo que el servidor devuelve un JSON
+                        }
+                        throw new Error('Error en la red');
+                    })
+                    .then(data => {
+                        // Maneja la respuesta del servidor
+                        Swal.fire('Restaurado!', data.message, 'success');
+                        // Opcional: recargar la página o actualizar la tabla
+                        location.reload(); // Recargar la página para ver los cambios
+                    })
+                    .catch(error => {
+                        Swal.fire('Error', 'No se pudo restaurar el elemento. Intenta de nuevo.', 'error');
+                        console.error('Error:', error);
+                    });
+                }
+            });
+        });
+    });
+    </script>
+    

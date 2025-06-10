@@ -1,0 +1,261 @@
+/* Variables de colores */
+:root {
+    --primary-color: #263238;
+    --primary-light: #37474f;
+    --success-color: #43a047;
+    --success-hover: #2e7d32;
+    --danger-color: #e53935;
+    --danger-hover: #c62828;
+    --warning-color: #ffc107;
+    --info-color: #039be5;
+    --info-light: #03a9f4;
+    --secondary-color: #607d8b;
+    --accent-color: #8e24aa;
+    --orange-color: #ff7043;
+    --border-color: #ddd;
+    --text-color: #555;
+    --text-light: #fff;
+    --shadow-color: rgba(0,0,0,0.2);
+    --hover-color: #1976d2;
+    --hover-light: #2196f3;
+}
+
+/* Estilos para tablas */
+.table {
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+    border: none;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+}
+
+.table tbody td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table tbody tr:hover {
+    background-color: rgba(38, 50, 56, 0.05);
+}
+
+/* Estilos de botones de acción */
+.action-buttons {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.action-buttons .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.action-buttons .btn i {
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.action-buttons .btn-success {
+    background: var(--success-color);
+    color: white;
+}
+
+.action-buttons .btn-success:hover {
+    background: var(--success-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(67, 160, 71, 0.3);
+}
+
+.action-buttons .btn-danger {
+    background: var(--danger-color);
+    color: white;
+}
+
+.action-buttons .btn-danger:hover {
+    background: var(--danger-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(229, 57, 53, 0.3);
+}
+
+.action-buttons .btn:hover i {
+    transform: scale(1.1);
+}
+
+.action-buttons .btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.action-buttons .btn:hover::before {
+    width: 200%;
+    height: 200%;
+}
+
+.action-buttons .btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Estilos adicionales para DataTables */
+.dataTables_wrapper .dataTables_length {
+    margin-bottom: 0.25rem;
+}
+
+.dataTables_wrapper .dataTables_length label {
+    font-size: 0.95rem;
+    color: var(--text-color);
+}
+
+.dataTables_wrapper .dataTables_length select {
+    min-width: 80px;
+    height: 35px;
+    padding: 4px 25px 4px 10px;
+    font-size: 0.95rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: white;
+    margin: 0 6px;
+}
+
+.dataTables_wrapper .dataTables_filter {
+    margin-bottom: 0.25rem;
+}
+
+.dataTables_wrapper .dataTables_filter label {
+    font-size: 0.95rem;
+    color: var(--text-color);
+}
+
+.dataTables_wrapper .dataTables_filter input {
+    min-width: 200px;
+    height: 35px;
+    padding: 4px 10px;
+    font-size: 0.95rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-left: 6px;
+}
+
+/* Estilos de paginación */
+.dataTables_wrapper .dataTables_paginate {
+    margin-top: 0.25rem;
+    padding-top: 0.25rem;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    padding: 6px 12px;
+    margin: 0 1px;
+    border-radius: 4px;
+    border: 1px solid transparent !important;
+    background: transparent !important;
+    color: var(--text-color) !important;
+    transition: all 0.2s ease;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: var(--hover-color) !important;
+    color: white !important;
+    border: 1px solid var(--hover-color) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: var(--hover-color) !important;
+    color: white !important;
+    border: 1px solid var(--hover-color) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: var(--hover-light) !important;
+    color: white !important;
+    border: 1px solid var(--hover-light) !important;
+    cursor: pointer;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover,
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled:active {
+    background: transparent !important;
+    color: #999 !important;
+    border: 1px solid transparent !important;
+    cursor: default;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:active {
+    background: var(--hover-color) !important;
+    color: white !important;
+}
+
+/* Información de registros */
+.dataTables_wrapper .dataTables_info {
+    padding-top: 0.25rem;
+    margin-top: 0.25rem;
+    font-size: 0.95rem;
+    color: var(--text-color);
+}
+
+/* Espaciado general */
+.dataTables_wrapper {
+    padding: 0.25rem 0;
+}
+
+.dataTables_wrapper .row {
+    margin: 0;
+    align-items: center;
+}
+
+/* Estilo para el encabezado de la tabla */
+.dataTables_wrapper .row:first-child {
+    background-color: white;
+    padding: 8px 12px;
+    margin: 0;
+}
+
+/* Estilo para los controles en el encabezado */
+.dataTables_wrapper .row:first-child select,
+.dataTables_wrapper .row:first-child input {
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 6px 10px;
+}
+
+.dataTables_wrapper .row:first-child label {
+    color: var(--text-color);
+}
+
+/* Ajustes de la tarjeta */
+.card-body {
+    padding: 0.25rem 1rem 0.5rem 1rem;
+}
+
+.card-header {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding: 1rem 1.5rem;
+} 

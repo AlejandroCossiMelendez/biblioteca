@@ -1,0 +1,205 @@
+<%- include('../partials/sidebar', {currentPage: 'users'}) %>
+
+	<!-- Encabezado mejorado -->
+	<header class="page-header bg-light py-4 mb-4 border-bottom">
+		<div class="container-fluid">
+			<div class="d-flex justify-content-between align-items-center">
+				<div class="d-flex align-items-center">
+					<i class="fas fa-user-edit fs-3 text-primary me-3"></i>
+					<div>
+						<i class="fas fa-users fa-2x"></i> Usuarios
+					</div>
+				</div>
+				<div>
+			</div>
+		</div>
+	</header>
+                <% if (messages.success) { %>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i><%- messages.success %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <% } %>
+                <% if (messages.error) { %>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i><%- messages.error %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <% } %>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-users me-2"></i>Lista de Usuarios</h5>
+                            <a href="/usuarios/add" class="btn btn-action btn-light btn-lg">
+                                <i class="fas fa-plus"></i>Nuevo Usuario
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <% if(data && data.length) { %>
+                            <div class="table-responsive">
+                                <table id="usuariosTable" class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            <th scope="col">Nombre Completo</th>
+                                            <th scope="col">Usuario</th>
+                                            <th scope="col">Email</th>
+                                            <th scope="col">Rol</th>
+                                            <th scope="col">Estado</th>
+                                            <th scope="col" class="text-center">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% for(var i = 0; i < data.length; i++) { %>
+                                            <tr>
+                                                <th scope="row"><%= (i+1) %></th>
+                                                <td><%= data[i].full_name %></td>
+                                                <td><%= data[i].username %></td>
+                                                <td><%= data[i].email %></td>
+                                                <td><span class="badge bg-info text-white">
+                                                    <%= data[i].role_name === 'admin' ? 'Administrador' : 
+                                                       data[i].role_name === 'librarian' ? 'Bibliotecario' : 
+                                                       data[i].role_name === 'student' || data[i].role_name === 'user' ? 'Usuario' : 
+                                                       data[i].role_name %>
+                                                </span></td>
+                                                <td>
+                                                    <% if(data[i].status == 1) { %>
+                                                        <span class="badge bg-success">Activo</span>
+                                                    <% } else { %>
+                                                        <span class="badge bg-danger">Inactivo</span>
+                                                    <% } %>
+                                                </td>
+                                                <td class="text-center" style="white-space: nowrap;">
+                                                    <div class="action-buttons d-inline-flex">
+                                                        <a href="/usuarios/edit/<%= data[i].id %>" class="btn btn-success btn-sm">
+                                                            <i class="fas fa-pen-to-square me-1"></i>Editar
+                                                        </a>
+                                                        <% if (data[i].id !== 1 && data[i].id !== currentUser.id) { %>
+                                                            <a href="/usuarios/delete/<%= data[i].id %>" 
+                                                            class="btn btn-danger btn-sm ms-1 btn-delete-user">
+                                                            <i class="fas fa-trash-can me-1"></i>Eliminar
+                                                            </a>
+                                                        <% } %>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <% } else { %>
+                            <div class="text-center py-5">
+                                <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                                <p class="lead text-muted">No hay usuarios registrados</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+    <%- include('../partials/footer') %>
+    <script>
+        $(document).ready(function() {
+            $('#usuariosTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
+                    search: "Buscar:",
+                    lengthMenu: "Mostrar _MENU_ registros por página",
+                    zeroRecords: "No se encontraron registros",
+                    info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                    infoEmpty: "Mostrando 0 a 0 de 0 registros",
+                    infoFiltered: "(filtrado de _MAX_ registros totales)",
+                    paginate: {
+                        first: "Primero",
+                        last: "Último",
+                        next: "Siguiente",
+                        previous: "Anterior"
+                    },
+                    thousands: ",",
+                    decimal: ".",
+                    emptyTable: "No hay datos disponibles",
+                    aria: {
+                        sortAscending: ": activar para ordenar la columna ascendente",
+                        sortDescending: ": activar para ordenar la columna descendente"
+                    },
+                    processing: "Procesando...",
+                    loadingRecords: "Cargando..."
+                },
+                pageLength: 5,
+                lengthMenu: [[5, 10, 25, -1], [5, 10, 25, "Todos"]],
+                order: [[1, 'asc']],
+                responsive: true,
+                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                     '<"row"<"col-sm-12"tr>>' +
+                     '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                initComplete: function() {
+                    let table = $(this);
+                    if (!table.parent().hasClass('table-responsive')) {
+                        table.wrap('<div class="table-responsive"></div>');
+                    }
+                }
+            });
+
+            // Mobile Navigation
+            const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarOverlay = document.querySelector('.sidebar-overlay');
+            
+            function toggleSidebar() {
+                sidebar.classList.toggle('show');
+                sidebarOverlay.classList.toggle('show');
+                document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
+            }
+            
+            mobileNavToggle.addEventListener('click', toggleSidebar);
+            sidebarOverlay.addEventListener('click', toggleSidebar);
+            
+            // Close sidebar when clicking a nav link on mobile
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 768) {
+                        toggleSidebar();
+                    }
+                });
+            });
+
+            // Close sidebar when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.sidebar').length && 
+                    !$(e.target).closest('.mobile-nav-toggle').length && 
+                    sidebar.classList.contains('show')) {
+                    toggleSidebar();
+                }
+            });
+            
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+        // Selecciona todos los botones eliminar
+        const deleteButtons = document.querySelectorAll('.btn-delete-user');
+
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+            e.preventDefault(); // Evitar redirección inmediata
+
+            const url = this.href;
+
+            Swal.fire({
+                title: '¿Está seguro?',
+                text: "No podrás revertir esta acción.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                // Redirigir a la URL para eliminar
+                window.location.href = url;
+                }
+            });
+            });
+        });
+        });
+    </script>

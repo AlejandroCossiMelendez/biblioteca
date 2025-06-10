@@ -1,0 +1,149 @@
+<%- include('../partials/sidebar', { currentPage: 'authors', user: user }) %>
+
+<!-- Encabezado mejorado -->
+<header class="page-header bg-light py-4 mb-4 border-bottom">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-user-edit fs-3 text-primary me-3"></i>
+                <div>
+                    <i class="fas fa-user me-2"></i>Agregar Nuevo Autor
+
+                </div>
+            </div>
+            <div>
+        </div>
+    </div>
+</header>
+
+<!-- Notificación de error mejorada -->
+<% if (messages && messages.error) { %>
+<div class="container-fluid mb-4">
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-exclamation-triangle me-3 fs-4"></i>
+            <div>
+                <strong class="d-block">Error al guardar</strong>
+                <%= messages.error %>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+</div>
+<% } %>
+
+<!-- Tarjeta de formulario mejorada -->
+<div class="container-fluid">
+    <div class="card border-0 shadow-lg rounded-3 overflow-hidden">
+        <div class="card-header bg-primary text-white py-3">
+            <h2 class="h5 mb-0">
+                <i class="fas fa-user-plus me-2"></i>Información del Autor
+            </h2>
+        </div>
+        <div class="card-body p-4">
+            <form action="/authors/add" method="post" autocomplete="off" class="needs-validation" novalidate>
+                <!-- Campo Nombre -->
+                <div class="mb-4">
+                    <label for="name" class="form-label fw-semibold">Nombre Completo</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fas fa-signature text-primary"></i></span>
+                        <input type="text" 
+                               class="form-control form-control-lg shadow-sm" 
+                               id="name" 
+                               name="name" 
+                               value="<%= typeof name !== 'undefined' ? name : '' %>" 
+                               required
+                               placeholder="Ej. Gabriel García Márquez"
+                               pattern=".{3,100}"
+                               title="El nombre debe tener entre 3 y 100 caracteres">
+                    </div>
+                    <div class="form-text">Ingrese el nombre completo del autor (mínimo 3 caracteres)</div>
+                </div>
+
+                <!-- Campo Estado -->
+                <div class="mb-4">
+                    <label for="state" class="form-label fw-semibold">Estado</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fas fa-toggle-on text-primary"></i></span>
+                        <select class="form-select form-select-lg shadow-sm" id="state" name="state" required>
+                            <option value="1" selected>Activo (visible en el sistema)</option>
+                            <option value="0">Inactivo (oculto en el sistema)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="d-flex justify-content-between pt-3 mt-4 border-top">
+                    <a href="/authors" class="btn btn-outline-danger px-4 rounded-pill">
+                        <i class="fas fa-arrow-left me-2"></i>Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4 rounded-pill">
+                        <i class="fas fa-save me-2"></i>Guardar Autor
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>
+
+<!-- Script para validación y sidebar -->
+<script>
+    // Validación del formulario
+    (function() {
+        'use strict'
+        
+        const forms = document.querySelectorAll('.needs-validation')
+        
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+
+    // Funcionalidad del sidebar (mejorada)
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileNavToggle = document.querySelector('.mobile-nav-toggle')
+        const sidebar = document.querySelector('.sidebar')
+        const sidebarOverlay = document.querySelector('.sidebar-overlay')
+
+        const toggleSidebar = () => {
+            sidebar.classList.toggle('show')
+            sidebarOverlay.classList.toggle('show')
+            document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : ''
+        }
+
+        // Event listeners mejorados
+        mobileNavToggle?.addEventListener('click', toggleSidebar)
+        sidebarOverlay?.addEventListener('click', toggleSidebar)
+        
+        document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 768) toggleSidebar()
+            })
+        })
+
+        // Cerrar sidebar al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.sidebar') && 
+                !e.target.closest('.mobile-nav-toggle') && 
+                sidebar?.classList.contains('show')) {
+                toggleSidebar()
+            }
+        })
+
+        // Cerrar sidebar al cambiar tamaño de pantalla
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768 && sidebar?.classList.contains('show')) {
+                toggleSidebar()
+            }
+        })
+    })
+</script>

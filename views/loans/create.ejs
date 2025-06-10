@@ -1,0 +1,417 @@
+<%- include('../partials/sidebar', {currentPage: 'loans'}) %>
+
+        <!-- Page Header -->
+        <header class="page-header">
+            <div class="container-fluid">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="mb-0">
+                        <i class="fas fa-archive me-2"></i>Generar Prestamos
+                    </h1>
+                </div>
+            </div>
+        </header>
+
+    <!-- Contenido principal -->
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <!-- Tarjeta de formulario mejorada -->
+                    <div class="card loan-form-card">
+                        <div class="card-header">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file-signature card-header-icon"></i>
+                                <h2 class="card-header-title">Registrar Nuevo Préstamo</h2>
+                            </div>
+                            <p class="card-header-subtitle">Complete todos los campos requeridos</p>
+                        </div>
+                        
+                        <div class="card-body">
+                            <!-- Mensajes de error -->
+                            <% if (messages.error) { %>
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-exclamation-circle me-2"></i>
+                                        <div><%- messages.error %></div>
+                                    </div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            <% } %>
+
+                            <!-- Formulario -->
+                            <form action="/loans" method="POST" class="needs-validation" novalidate>
+                                <!-- Sección Usuario -->
+                                <div class="form-section">
+                                    <h3 class="form-section-title">
+                                        <i class="fas fa-user-circle section-icon"></i>
+                                        Información del Usuario
+                                    </h3>
+                                    
+                                    <% if (user.role === 'admin' || user.role === 'librarian') { %>
+                                        <div class="mb-3">
+                                            <label for="user_id" class="form-label">
+                                                <i class="fas fa-user-tag me-1 text-primary"></i> Seleccionar Usuario
+                                                <span class="text-danger">*</span>
+                                            </label>
+                                            <select class="form-select select2-style" id="user_id" name="user_id" required>
+                                                <option value="">Buscar usuario...</option>
+                                                <% users.forEach(user => { %>
+                                                    <option value="<%= user.id %>">
+                                                        <%= user.full_name %> (<%= user.email %>)
+                                                    </option>
+                                                <% }); %>
+                                            </select>
+                                            <div class="form-text">Seleccione el usuario que realizará el préstamo</div>
+                                        </div>
+                                    <% } else { %>
+                                        <div class="user-info-display">
+                                            <div class="user-info-label">
+                                                <i class="fas fa-user-tag me-1"></i> Usuario:
+                                            </div>
+                                            <div class="user-info-value">
+                                                <%= user.full_name %>
+                                                <input type="hidden" name="user_id" value="<%= user.id %>">
+                                            </div>
+                                        </div>
+                                    <% } %>
+                                </div>
+
+                                <!-- Sección Libro -->
+                                <div class="form-section">
+                                    <h3 class="form-section-title">
+                                        <i class="fas fa-book-open section-icon"></i>
+                                        Detalles del Libro
+                                    </h3>
+                                    
+                                    <div class="mb-3">
+                                        <label for="book_id" class="form-label">
+                                            <i class="fas fa-book me-1 text-primary"></i> Seleccionar Libro
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-select select2-style" id="book_id" name="book_id" required>
+                                            <option value="">Buscar libro por título, autor o ISBN...</option>
+                                            <% if (books && books.length > 0) { %>
+                                                <% books.forEach(book => { %>
+                                                    <option value="<%= book.id_book %>" 
+                                                            data-available="<%= book.available %>"
+                                                            data-stock="<%= book.stock %>">
+                                                        <%= book.title %> - <%= book.author %> (ISBN: <%= book.isbn %>) 
+                                                        - Disponibles: <%= book.available %>/<%= book.stock %>
+                                                    </option>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <option value="" disabled>No hay libros disponibles</option>
+                                            <% } %>
+                                        </select>
+                                        <div class="availability-info mt-2">
+                                            <span class="badge bg-info" id="availability-badge">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Seleccione un libro para ver detalles
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Sección Fechas -->
+                                <div class="form-section">
+                                    <h3 class="form-section-title">
+                                        <i class="far fa-calendar-alt section-icon"></i>
+                                        Fechas del Préstamo
+                                    </h3>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">
+                                                <i class="fas fa-calendar-day me-1 text-primary"></i> Fecha de Préstamo
+                                            </label>
+                                            <input type="text" class="form-control" 
+                                                value="<%= new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %>" 
+                                                readonly>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="due_date" class="form-label">
+                                                <i class="fas fa-calendar-check me-1 text-primary"></i> Fecha de Devolución
+                                                <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="date" class="form-control" id="due_date" name="due_date" required
+                                                min="<%= new Date().toISOString().split('T')[0] %>"
+                                                max="<%= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] %>">
+                                            <div class="form-text">Máximo 30 días a partir de hoy</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Acciones del formulario -->
+                                <div class="form-actions">
+                                    <button type="reset" class="btn btn-outline-secondary">
+                                        <i class="fas fa-eraser me-1"></i> Limpiar
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-check-circle me-1"></i> Registrar Préstamo
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<%- include('../partials/footer') %>
+
+
+<!-- Scripts personalizados -->
+<script>
+    $(document).ready(function() {
+        // Inicializar select2 para mejores búsquedas
+        $('.select2-style').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            placeholder: $(this).data('placeholder'),
+            allowClear: true
+        });
+        
+        // Mostrar información de disponibilidad cuando se selecciona un libro
+        $('#book_id').on('change', function() {
+            const selectedOption = $(this).find('option:selected');
+            const available = selectedOption.data('available');
+            const stock = selectedOption.data('stock');
+            
+            if (available !== undefined && stock !== undefined) {
+                const badge = $('#availability-badge');
+                badge.removeClass('bg-info bg-success bg-warning bg-danger');
+                
+                if (available > 3) {
+                    badge.addClass('bg-success').html(
+                        `<i class="fas fa-check-circle me-1"></i> 
+                        ${available} de ${stock} copias disponibles (Disponibilidad alta)`
+                    );
+                } else if (available > 0) {
+                    badge.addClass('bg-warning').html(
+                        `<i class="fas fa-exclamation-triangle me-1"></i> 
+                        ${available} de ${stock} copias disponibles (Últimas unidades)`
+                    );
+                } else {
+                    badge.addClass('bg-danger').html(
+                        `<i class="fas fa-times-circle me-1"></i> 
+                        ${available} de ${stock} copias disponibles (Agotado)`
+                    );
+                }
+            }
+        });
+        
+        // Configurar fecha mínima/máxima para devolución
+        const today = new Date();
+        const maxDate = new Date();
+        maxDate.setDate(today.getDate() + 30); // 30 días máximo
+        
+        $('#due_date').attr('min', today.toISOString().split('T')[0]);
+        $('#due_date').attr('max', maxDate.toISOString().split('T')[0]);
+        
+        // Validación del formulario
+        (function() {
+            'use strict';
+            
+            const forms = document.querySelectorAll('.needs-validation');
+            
+            Array.from(forms).forEach(function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+        
+        // Mobile Navigation (mejorado)
+        const mobileNavToggle = $('.mobile-nav-toggle');
+        const sidebar = $('.sidebar');
+        const sidebarOverlay = $('.sidebar-overlay');
+        
+        function toggleSidebar() {
+            sidebar.toggleClass('show');
+            sidebarOverlay.toggleClass('show');
+            $('body').css('overflow', sidebar.hasClass('show') ? 'hidden' : '');
+        }
+        
+        mobileNavToggle.on('click', toggleSidebar);
+        sidebarOverlay.on('click', toggleSidebar);
+        
+        // Cerrar sidebar al hacer clic en un enlace
+        $('.sidebar .nav-link').on('click', function() {
+            if ($(window).width() < 768) {
+                toggleSidebar();
+            }
+        });
+        
+        // Cerrar sidebar al hacer clic fuera
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.sidebar').length && 
+                !$(e.target).closest('.mobile-nav-toggle').length && 
+                sidebar.hasClass('show')) {
+                toggleSidebar();
+            }
+        });
+    });
+</script>
+<!-- Estilos personalizados -->
+<style>
+    .loan-page-container {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+    
+    .page-header-container {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: white;
+        padding: 1.5rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .header-title {
+        display: flex;
+        align-items: center;
+    }
+    
+    .header-icon {
+        font-size: 1.8rem;
+        margin-right: 1rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .loan-form-card {
+        border: none;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+    
+    .card-header {
+        background: linear-gradient(to right, #4b6cb7, #182848);
+        color: white;
+        padding: 1.5rem;
+        border-bottom: none;
+    }
+    
+    .card-header-icon {
+        font-size: 1.5rem;
+        margin-right: 0.75rem;
+    }
+    
+    .card-header-title {
+        font-weight: 600;
+        margin-bottom: 0;
+        font-size: 1.5rem;
+    }
+    
+    .card-header-subtitle {
+        opacity: 0.9;
+        margin-bottom: 0;
+        font-size: 0.9rem;
+    }
+    
+    .card-body {
+        padding: 2rem;
+    }
+    
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .form-section-title {
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+    }
+    
+    .section-icon {
+        margin-right: 0.75rem;
+        color: #4b6cb7;
+    }
+    
+    .select2-style {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 16px 12px;
+        padding: 0.5rem 1rem;
+        border: 1px solid #ced4da;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    
+    .select2-style:focus {
+        border-color: #86b7fe;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .user-info-display {
+        display: flex;
+        align-items: center;
+        background-color: #f8f9fa;
+        padding: 0.75rem 1rem;
+        border-radius: 0.375rem;
+        border: 1px solid #dee2e6;
+    }
+    
+    .user-info-label {
+        font-weight: 500;
+        margin-right: 0.5rem;
+    }
+    
+    .user-info-value {
+        font-weight: 600;
+    }
+    
+    .availability-info {
+        transition: all 0.3s ease;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #eee;
+        margin-top: 1.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .header-actions {
+            margin-top: 1rem;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .form-actions button {
+            width: 100%;
+        }
+    }
+</style>
